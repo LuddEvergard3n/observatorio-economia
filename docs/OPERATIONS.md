@@ -26,6 +26,8 @@ Os testes determinísticos não dependem das APIs. A coleta é uma verificação
 
 O teste de retenção executa o coletor com uma fonte inválida local e confirma que o arquivo anterior permanece byte a byte intacto, enquanto o manifesto comunica o erro. Seus fixtures ficam em `.cache/retention-check/`, fora do repositório e da publicação.
 
+O CI fixa `ubuntu-24.04` e usa o Edge já presente na [imagem oficial](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md). Isso evita instalar pacotes do sistema a cada publicação. A versão do navegador acompanha as atualizações da imagem hospedada.
+
 Em telas pequenas, a navegação fechada fica oculta também para foco e tecnologias assistivas, não apenas deslocada para fora da tela. Escape fecha o menu; os controles possuem rótulos acessíveis e há link para pular ao conteúdo.
 
 ## Configuração inicial

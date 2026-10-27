@@ -29,7 +29,7 @@ npm run build
 npm run preview
 ```
 
-`dev` abre o servidor em `http://127.0.0.1:5173`; `preview` serve a compilação em `http://127.0.0.1:4173`. Não abrir o HTML diretamente por `file://`. Os testes de navegador locais usam Microsoft Edge instalado; no CI, Chromium é instalado pelo Playwright.
+`dev` abre o servidor em `http://127.0.0.1:5173`; `preview` serve a compilação em `http://127.0.0.1:4173`. Não abrir o HTML diretamente por `file://`. Os testes de navegador usam Microsoft Edge instalado, tanto localmente quanto na imagem oficial Ubuntu 24.04 do GitHub Actions.
 
 ```sh
 dotnet run --project collector -- --only ipca,usd
