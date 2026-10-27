@@ -24,6 +24,8 @@ dotnet run --project collector -- --only ipca
 
 Os testes determinísticos não dependem das APIs. A coleta é uma verificação de integração separada. O build verifica TypeScript e produz `dist/`; teste de navegador verifica navegação, tabelas, downloads, ausência de chamadas externas e largura de 390 pixels. A inspeção visual deve complementar os testes, particularmente quando gráficos ou estilos mudarem.
 
+O teste de retenção executa o coletor com uma fonte inválida local e confirma que o arquivo anterior permanece byte a byte intacto, enquanto o manifesto comunica o erro. Seus fixtures ficam em `.cache/retention-check/`, fora do repositório e da publicação.
+
 Em telas pequenas, a navegação fechada fica oculta também para foco e tecnologias assistivas, não apenas deslocada para fora da tela. Escape fecha o menu; os controles possuem rótulos acessíveis e há link para pular ao conteúdo.
 
 ## Configuração inicial
