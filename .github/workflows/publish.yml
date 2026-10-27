@@ -1,0 +1,120 @@
+name: Update data and publish
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: Refresh upstream sources before publishing
+        type: boolean
+        default: true
+      full:
+        description: Reconcile the entire available history
+        type: boolean
+        default: false
+
+concurrency:
+  group: observatorio-publication
+  cancel-in-progress: false
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore latest published data
+        shell: bash
+        run: |
+          if git ls-remote --exit-code --heads origin data; then
+            git fetch origin data
+            git archive origin/data public/data | tar -x
+          fi
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/http
+            .cache/raw
+          key: upstream-${{ github.run_id }}
+          restore-keys: upstream-
+      - run: npm ci
+      - name: Deterministic checks
+        run: |
+          npm test
+          dotnet run --project tests/CollectorChecks
+      - name: Refresh sources
+        if: github.event_name == 'schedule' || inputs.refresh
+        env:
+          FULL: ${{ inputs.full }}
+        run: |
+          if [ "$FULL" = true ]; then
+            dotnet run --project collector -- --full
+          else
+            dotnet run --project collector
+          fi
+      - run: npm run build
+      - name: Browser checks
+        if: github.event_name != 'schedule'
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - name: Preserve the data branch
+        shell: bash
+        run: |
+          if git show-ref --verify --quiet refs/remotes/origin/data; then
+            git branch data origin/data
+          else
+            git branch data HEAD
+          fi
+          git worktree add .cache/data-state data
+          cp -a public/data/. .cache/data-state/public/data/
+          cd .cache/data-state
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: refresh public source snapshots'
+          fi
+          git push origin data
+      - name: Archive source evidence on Sundays and manual runs
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        shell: bash
+        run: |
+          if [ "$(date -u +%u-%H)" = 7-06 ] || [ "${{ github.event_name }}" = workflow_dispatch ]; then
+            mkdir -p .cache/evidence
+            tar -czf .cache/evidence/snapshot.tar.gz .cache/raw public/data catalog docs/DATA-SOURCES.md
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-evidence-${{ github.run_id }}
+          path: .cache/evidence/snapshot.tar.gz
+          if-no-files-found: ignore
+          retention-days: 90
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

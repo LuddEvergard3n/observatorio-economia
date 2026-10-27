@@ -1,0 +1,44 @@
+import { test, expect } from '@playwright/test'
+
+test('loads real snapshots, charts, methodology and CSV without provider requests', async ({ page }) => {
+  const errors: string[] = [], external: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:5173') && !request.url().startsWith('data:')) external.push(request.url()) })
+  await page.goto('/')
+  await expect(page.locator('.kpi-card').first()).toBeVisible()
+  await expect(page.locator('canvas').first()).toBeVisible()
+  await page.screenshot({ path: '.cache/desktop.png', fullPage: true })
+  await page.goto('/#indicator/ipca?from=2020&to=2026')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('IPCA')
+  await page.getByRole('tab', { name: 'Dados da série' }).click()
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  const downloaded = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'CSV', exact: true }).click()
+  expect((await downloaded).suggestedFilename()).toContain('ipca')
+  await page.goto('/#idmi')
+  await expect(page.getByText('Nota geral indisponível', { exact: true })).toBeVisible()
+  await page.goto('/#history')
+  await expect(page.getByText('EC 40', { exact: false }).first()).toBeVisible()
+  expect(errors).toEqual([])
+  expect(external).toEqual([])
+})
+
+test('mobile pages fit the viewport and dark theme persists', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await expect(page.locator('.kpi-card').first()).toBeVisible()
+  await page.getByRole('button', { name: 'Ativar tema escuro' }).click()
+  await page.reload()
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  for (const route of ['overview', 'compare', 'idmi', 'sources', 'history', 'labor']) {
+    await page.goto('/#' + route)
+    await expect(page.locator('h1')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), route).toBe(true)
+  }
+  await page.goto('/#overview')
+  await page.screenshot({ path: '.cache/mobile.png', fullPage: true })
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  await expect(page.getByRole('complementary', { name: 'Navegação principal' }).getByRole('link', { name: 'Comparar países', exact: true })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('button', { name: 'Abrir menu' })).toHaveAttribute('aria-expanded', 'false')
+})

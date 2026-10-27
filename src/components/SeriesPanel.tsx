@@ -1,0 +1,40 @@
+import { lazy, Suspense, useState } from 'react'
+import { ArrowDownToLine, ExternalLink, Info, Link as LinkIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DataTable } from './DataTable'
+import { useDataset } from '@/lib/data'
+import { csv, download, frequencies, timestamp } from '@/lib/format'
+import { events } from '@/content/events'
+import type { Country, Entry } from '@/lib/types'
+
+const Chart = lazy(() => import('./Chart'))
+
+/** Show a published series, its audit trail and export controls without manufacturing missing data. */
+export function SeriesPanel({ entry, countries, from, to, version, dark, compact = false }: { entry: Entry; countries: Country[]; from: number; to: number; version: string; dark: boolean; compact?: boolean }) {
+  const definition = entry.definition
+  const enabled = Object.values(entry.summaries).some(s => s.count > 0)
+  const { data, loading, error } = useDataset(definition.id, version, enabled)
+  const [annotate, setAnnotate] = useState(true)
+  const [message, setMessage] = useState('')
+  const related = events.filter(event => event.type === 'method' && (event.indicators ? event.indicators.includes(definition.id) : event.categories.includes(definition.category)))
+  return <section className="panel series-panel" aria-label={definition.name}>
+    <div className="panel-heading"><div><div className="eyebrow">{compact ? 'TRAJETÓRIA HISTÓRICA' : frequencies[definition.frequency]}</div><h2>{definition.name}</h2><p>{definition.description}</p></div><Badge variant="outline">{definition.unit}</Badge></div>
+    {entry.status === 'error' && <div className="notice warning"><Info size={16} /><span>A última consulta à fonte falhou. {entry.lastSuccess ? `Exibindo o conjunto preservado de ${timestamp(entry.lastSuccess)}.` : 'A série ficará disponível após uma coleta válida.'}</span></div>}
+    {loading ? <div className="chart-loading" role="status"><span className="loading-bar" />Carregando a série histórica…</div> : error ? <div className="empty-state"><Info /><h3>Não foi possível abrir a série</h3><p>{error}</p><Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button></div> : !data ? <div className="empty-state"><Info /><h3>Dados ainda indisponíveis</h3><p>{definition.notes}</p><a href={definition.sourceUrl} target="_blank" rel="noreferrer" className="text-link">Consultar a fonte <ExternalLink size={14} /></a></div> : <>
+      <Suspense fallback={<div className="chart-loading">Preparando o gráfico…</div>}><Chart data={data} definition={definition} countries={countries} from={from} to={to} events={annotate ? related : []} dark={dark} height={compact ? 310 : 390} /></Suspense>
+      <div className="series-toolbar"><label className="check-label"><input type="checkbox" checked={annotate} onChange={e => setAnnotate(e.target.checked)} /> Mudanças metodológicas</label><div className="export-actions"><Button variant="ghost" size="sm" onClick={() => download(csv(data, definition, countries.map(c => c.id), from, to), `${definition.id}-${from}-${to}.csv`, 'text/csv;charset=utf-8')}><ArrowDownToLine size={14} /> CSV</Button>{!compact && <Button variant="ghost" size="sm" onClick={() => download(JSON.stringify({ definition, ...data, series: data.series.filter(s => countries.some(c => c.id === s.country)).map(s => ({ ...s, observations: s.observations.filter(p => Number(p.period.slice(0, 4)) >= from && Number(p.period.slice(0, 4)) <= to) })) }, null, 2), `${definition.id}.json`, 'application/json')}>JSON</Button>}<Button variant="ghost" size="sm" onClick={async () => {
+        const url = `${window.location.origin}${window.location.pathname}#compare?indicator=${definition.id}&countries=${countries.map(c => c.id).join(',')}&from=${from}&to=${to}`
+        try { await navigator.clipboard.writeText(url); setMessage('Link copiado.') } catch { setMessage(url) }
+      }}><LinkIcon size={14} /> Compartilhar</Button></div></div>
+      {message && <p className="feedback" role="status">{message}</p>}
+      {!compact && <Tabs defaultValue="table" className="detail-tabs"><TabsList><TabsTrigger value="table">Dados da série</TabsTrigger><TabsTrigger value="method">Método e revisões</TabsTrigger><TabsTrigger value="source">Origem e auditoria</TabsTrigger></TabsList>
+        <TabsContent value="table"><DataTable data={data} definition={definition} countries={countries} from={from} to={to} /></TabsContent>
+        <TabsContent value="method"><div className="prose-content"><p>{definition.notes || 'Consulte a documentação da fonte para a definição e as revisões desta série.'}</p><p>Lacunas permanecem vazias. A data de coleta não é a data de referência nem necessariamente a data de publicação.</p>{related.map(event => <article className="method-item" key={event.id}><span>{event.date}</span><h3>{event.title}</h3><p>{event.description}</p><a href={event.url} target="_blank" rel="noreferrer">Documento da fonte <ExternalLink size={12} /></a></article>)}</div></TabsContent>
+        <TabsContent value="source"><div className="prose-content"><h3>{definition.source}</h3><p>{data.sourceNote}</p><p>Última coleta bem-sucedida: {timestamp(data.retrievedAt)}. As respostas originais são identificadas pelos hashes abaixo.</p><a className="text-link" href={definition.sourceUrl} target="_blank" rel="noreferrer">Abrir documentação <ExternalLink size={13} /></a><details><summary>Requisições e hashes SHA-256</summary>{data.provenance.map(item => <div className="provenance" key={item.url}><a href={item.url} target="_blank" rel="noreferrer">{item.url}</a><code>{item.sha256}</code></div>)}</details></div></TabsContent>
+      </Tabs>}
+    </>}
+    <div className="source-line"><span>Fonte: {definition.source}</span><a href={definition.sourceUrl} target="_blank" rel="noreferrer">Ver origem <ExternalLink size={12} /></a></div>
+  </section>
+}
