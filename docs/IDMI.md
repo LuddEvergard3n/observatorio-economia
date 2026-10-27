@@ -16,6 +16,8 @@ escala pública = 100 × (G − 1)/99
 
 Ausência não vira pontuação mínima. Para notas agregadas, todos os componentes devem estar disponíveis, no mesmo ano e país. Não há interpolação, transporte de anos anteriores ou reponderação para excluir componentes faltantes.
 
+Resultados geométricos são limitados numericamente ao intervalo 1–100 para impedir que arredondamentos de ponto flutuante invalidem agregações subsequentes nos extremos da escala.
+
 ## Oito dimensões, pesos iguais
 
 | Dimensão | Regra |

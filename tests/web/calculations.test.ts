@@ -19,6 +19,7 @@ describe('IDMI: fixed bounds, missing inputs and reference years', () => {
     expect(geometric([1, 100])).toBeCloseTo(10)
     expect(geometric([1, 100], [.65, .35])).toBeCloseTo(100 ** .35)
     expect(geometric([100, null])).toBeNull()
+    expect(geometric([geometric([100, 100]), 100])).toBe(100)
     expect(() => geometric([100], [0])).toThrow()
   })
   it('does not carry observations across years or publish incomplete totals', () => {

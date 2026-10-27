@@ -17,7 +17,7 @@ export function geometric(values: (number | null)[], weights = values.map(() => 
   if (!values.length || weights.length !== values.length || weights.some(w => !Number.isFinite(w) || w <= 0)) throw new Error('Invalid weights.')
   if (values.some(v => v == null || !Number.isFinite(v) || v < 1 || v > 100)) return null
   const total = weights.reduce((sum, w) => sum + w, 0)
-  return Math.exp(values.reduce<number>((sum, value, index) => sum + weights[index] * Math.log(value!), 0) / total)
+  return Math.max(1, Math.min(100, Math.exp(values.reduce<number>((sum, value, index) => sum + weights[index] * Math.log(value!), 0) / total)))
 }
 
 /** Convert an internal score only after aggregation, including component display values. */
