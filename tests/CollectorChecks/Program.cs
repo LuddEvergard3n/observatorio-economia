@@ -32,17 +32,20 @@ var datasetFile = Path.Combine(fixture, "series", "sample.json");
 var original = JsonSerializer.Serialize(Data(Point("2025", 42)), options);
 await File.WriteAllTextAsync(datasetFile, original);
 var catalogFile = Path.Combine(fixture, "catalog.json");
-var catalog = new Catalog(1, 1988, 2026, [new("BRA", "Brasil", "América", "#000000")], [new("sample", "Sample", "", "activity", "%", "annual", "unsupported-test-provider", "Fixture", "https://example.org", "Fixture", "", "published")]);
-await File.WriteAllTextAsync(catalogFile, JsonSerializer.Serialize(catalog, options));
-using var process = new Process { StartInfo = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false } };
-foreach (var argument in new[] { typeof(Providers).Assembly.Location, "--catalog", catalogFile, "--output", fixture, "--as-of", "2026-03-15" }) process.StartInfo.ArgumentList.Add(argument);
-process.Start();
-var stdout = process.StandardOutput.ReadToEndAsync();
-var stderr = process.StandardError.ReadToEndAsync();
-await process.WaitForExitAsync();
-await Task.WhenAll(stdout, stderr);
-Check(process.ExitCode == 1, "All-failed collection signals failure");
-Check(await File.ReadAllTextAsync(datasetFile) == original, "Failed connector never overwrites existing series");
-var retainedManifest = JsonSerializer.Deserialize<Manifest>(await File.ReadAllTextAsync(Path.Combine(fixture, "manifest.json")), options)!;
-Check(retainedManifest.Indicators[0].Status == "error" && retainedManifest.Indicators[0].Summaries["BRA"].Value == 42, "Manifest preserves the value and reports the failure");
+foreach (var provider in new[] { "unsupported-test-provider", "derived" })
+{
+    var catalog = new Catalog(1, 1988, 2026, [new("BRA", "Brasil", "América", "#000000")], [new("sample", "Sample", "", "activity", "%", "annual", provider, "Fixture", "https://example.org", "Fixture", "", "published")]);
+    await File.WriteAllTextAsync(catalogFile, JsonSerializer.Serialize(catalog, options));
+    using var process = new Process { StartInfo = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false } };
+    foreach (var argument in new[] { typeof(Providers).Assembly.Location, "--catalog", catalogFile, "--output", fixture, "--as-of", "2026-03-15" }) process.StartInfo.ArgumentList.Add(argument);
+    process.Start();
+    var stdout = process.StandardOutput.ReadToEndAsync();
+    var stderr = process.StandardError.ReadToEndAsync();
+    await process.WaitForExitAsync();
+    await Task.WhenAll(stdout, stderr);
+    Check(process.ExitCode == 1, "All-failed collection signals failure");
+    Check(await File.ReadAllTextAsync(datasetFile) == original, "Failed connector never overwrites existing series");
+    var retainedManifest = JsonSerializer.Deserialize<Manifest>(await File.ReadAllTextAsync(Path.Combine(fixture, "manifest.json")), options)!;
+    Check(retainedManifest.Indicators[0].Status == "error" && retainedManifest.Indicators[0].Summaries["BRA"].Value == 42, "Manifest preserves the value and reports the failure");
+}
 Console.WriteLine($"{checks} collector checks passed.");

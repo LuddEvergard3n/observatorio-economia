@@ -50,7 +50,7 @@ foreach (var definition in catalog.Indicators)
             await WriteAtomic(file, fresh);
             Console.WriteLine($"OK {definition.Id}: {fresh.Series.Sum(s => s.Observations.Count(p => p.Value.HasValue))} observations");
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or JsonException or FormatException or InvalidOperationException or KeyNotFoundException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or InvalidDataException or JsonException or FormatException or InvalidOperationException or KeyNotFoundException)
         {
             status = "error";
             error = ex.Message.Length > 240 ? ex.Message[..240] : ex.Message;
