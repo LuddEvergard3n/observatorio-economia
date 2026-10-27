@@ -12,6 +12,8 @@ BCB atualiza dois anos recentes, começando no primeiro dia do mês. Reconcilia�
 
 Não há garantia de que todas as fontes publicarão a cada hora. A coleta central evita chamadas de cada visitante às APIs.
 
+Abas abertas verificam o manifesto estático a cada hora e preservam a versão visível se a conexão falhar. Selic, IPCA e dívida bruta mantêm duas casas decimais no panorama; a PTAX mantém quatro.
+
 ## Verificação
 
 ```sh

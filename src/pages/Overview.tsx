@@ -21,7 +21,7 @@ export function Overview({ manifest, dark }: { manifest: Manifest; dark: boolean
     <div className="kpi-grid">{ids.map(id => {
       const e = manifest.indicators.find(item => item.definition.id === id)!
       const s = e.summaries.BRA
-      const digits = id === 'usd' ? 4 : 1
+      const digits = id === 'usd' ? 4 : ['selic', 'ipca', 'debt-gross'].includes(id) ? 2 : 1
       return <a className="kpi-card" href={`#indicator/${id}`} key={id}><div className="kpi-title"><span>{e.definition.name}</span><ArrowUpRight size={15} /></div><div className="kpi-main"><div><strong>{number(s?.value, digits)}</strong><span className="kpi-unit">{e.definition.unit}</span></div><Sparkline points={s?.sparkline ?? []} /></div><div className="kpi-bottom"><span>{s?.last ? period(s.last, e.definition.frequency) : 'Aguardando fonte'}</span><span className={`tiny-dot ${e.status === 'error' ? 'amber' : ''}`} /></div></a>
     })}</div>
     <div className="overview-columns"><div><div className="chart-controls"><div className="segmented" aria-label="Indicador principal">{[['gdp-growth','PIB real'],['inflation-world','Inflação'],['unemployment-world','Desemprego']].map(([id,label]) => <button className={metric === id ? 'active' : ''} key={id} onClick={() => setMetric(id)}>{label}</button>)}</div><div className="segmented compact" aria-label="Janela de tempo">{[[5,'5 anos'],[10,'10 anos'],[39,'Tudo']].map(([years,label]) => <button key={years} className={windowYears === years ? 'active' : ''} onClick={() => setWindowYears(Number(years))}>{label}</button>)}</div></div>

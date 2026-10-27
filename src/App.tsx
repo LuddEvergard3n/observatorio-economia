@@ -37,6 +37,7 @@ export default function App() {
   const load=()=>{setError(null);getManifest().then(setManifest).catch(e=>setError(String(e.message)))}
   useEffect(()=>{load();const change=()=>{setHash(window.location.hash);setMenu(false);window.scrollTo({top:0})};window.addEventListener('hashchange',change);const timer=setInterval(()=>setNow(Date.now()),60000);return()=>{window.removeEventListener('hashchange',change);clearInterval(timer)}},[])
   useEffect(()=>{document.documentElement.classList.toggle('dark',dark);try{localStorage.setItem('observatorio:theme',dark?'dark':'light')}catch{/* Storage may be disabled; the current session still works. */}},[dark])
+  useEffect(()=>{const refresh=setInterval(()=>{getManifest().then(setManifest).catch(()=>{/* Keep the visible snapshot; its age warning remains active. */})},3600000);return()=>clearInterval(refresh)},[])
   useEffect(()=>{const escape=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenu(false)};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape)},[])
   const [path='overview',query='']=(hash.replace(/^#\/?/,'')||'overview').split('?')
   const params=new URLSearchParams(query)
