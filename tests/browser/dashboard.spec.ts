@@ -28,6 +28,7 @@ test('mobile pages fit the viewport and dark theme persists', async ({ page }) =
   await page.goto('/')
   await expect(page.locator('.kpi-card').first()).toBeVisible()
   await page.getByRole('button', { name: 'Ativar tema escuro' }).click()
+  await expect(page.locator('.sidebar')).toBeHidden()
   await page.reload()
   await expect(page.locator('html')).toHaveClass(/dark/)
   for (const route of ['overview', 'compare', 'idmi', 'sources', 'history', 'labor']) {
