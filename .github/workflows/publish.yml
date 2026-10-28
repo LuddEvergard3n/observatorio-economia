@@ -66,6 +66,9 @@ jobs:
             dotnet run --project collector
           fi
       - run: npm run build
+      - name: Install Playwright Chromium
+        if: github.event_name != 'schedule'
+        run: npx playwright install --with-deps chromium
       - name: Browser checks
         if: github.event_name != 'schedule'
         run: npm run test:e2e
