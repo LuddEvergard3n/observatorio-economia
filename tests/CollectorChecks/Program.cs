@@ -1,5 +1,6 @@
 using Observatory;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Text.Json;
 
 var checks = 0;
@@ -27,6 +28,21 @@ Check(DataRules.Deflate([Point("2025-01", 100)], [], "2025-02")[0].Value is null
 var debtCsv = "Titulo/Contrato;Vencimento do Titulo/Contrato;Valor do Estoque;Quantidade do Estoque;Mes do Estoque;Classe da Carteira;Tipo de Divida\nA;01/01/2030;1000000,00;1;08/2026;Mercado;Dívida Interna\nB;01/01/2030;500000,00;1;08/2026;Mercado;Dívida Externa\nC;01/01/2030;9000000,00;1;08/2026;Banco Central;Dívida Interna";
 var debt = DataRules.AggregateFederalDebt(new StringReader(debtCsv), "published");
 Check(debt.Length == 1 && debt[0].Period == "2026-08" && debt[0].Value == 1.5, "Aggregate DPF market stock without BCB portfolio");
+using var workbookBytes = new MemoryStream();
+using (var zip = new ZipArchive(workbookBytes, ZipArchiveMode.Create, true))
+{
+    var strings = zip.CreateEntry("xl/sharedStrings.xml");
+    await using (var writer = new StreamWriter(strings.Open())) await writer.WriteAsync("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><si><t>BRA</t></si></sst>");
+    var sheet = zip.CreateEntry("xl/worksheets/sheet2.xml");
+    await using var sheetWriter = new StreamWriter(sheet.Open());
+    await sheetWriter.WriteAsync("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\"><c r=\"B1\" t=\"s\"><v>0</v></c><c r=\"AY1\"><v>0.909</v></c></row></sheetData></worksheet>");
+}
+using (var workbook = new Workbook(workbookBytes.ToArray()))
+{
+    var row = workbook.Rows("xl/worksheets/sheet2.xml").Single();
+    Check(row["B"] == "BRA" && row["AY"] == "0.909", "Read XLSX shared strings and sparse columns");
+    Check(workbook.FindRows("xl/worksheets/sheet2.xml", r => r.GetValueOrDefault("B") == "BRA").Single()["AY"] == "0.909", "Stream selected XLSX rows");
+}
 // Exercise the real publication boundary without network: an unsupported provider must preserve the existing file.
 var fixture = Path.GetFullPath(Path.Combine(".cache", "retention-check", Guid.NewGuid().ToString("N")));
 Directory.CreateDirectory(Path.Combine(fixture, "series"));

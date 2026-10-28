@@ -19,6 +19,45 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
         var series = new List<Series>();
         switch (definition.Provider)
         {
+            case "waste":
+            {
+                const string url = "https://datacatalogfiles.worldbank.org/ddh-published/0039597/DR0095901/What_a_Waste_3.0_COUNTRY_Dataset_%26_Codebook.xlsx";
+                urls.Add(url);
+                using var book = new Workbook(Convert.FromBase64String(await http.Get(url, binary: true)));
+                var rows = book.Rows("xl/worksheets/sheet2.xml");
+                if (rows[1].GetValueOrDefault("AY") != definition.Code) throw new InvalidDataException("Waste workbook schema changed.");
+                var metadata = book.FindRows("xl/worksheets/sheet3.xml", r => countries.Contains(r.GetValueOrDefault("B", "")) && r.GetValueOrDefault("D") == definition.Code)
+                    .Where(r => int.TryParse(r.GetValueOrDefault("I"), out _)).ToDictionary(r => r["B"], r => int.Parse(r["I"], CultureInfo.InvariantCulture));
+                foreach (var row in rows.Where(r => countries.Contains(r.GetValueOrDefault("A", ""))))
+                {
+                    var value = DataRules.ParseNumber(row.GetValueOrDefault("AY"));
+                    if (value is null) continue;
+                    if (value is < 0 or > 1) throw new InvalidDataException("Waste coverage must be a fraction.");
+                    if (!metadata.TryGetValue(row["A"], out var year)) continue;
+                    series.Add(new Series(row["A"], [new Observation(year.ToString(CultureInfo.InvariantCulture), value * 100, "estimate")]));
+                }
+                note = "What a Waste 3.0, edição 2026, tabela nacional: população total atendida pela coleta. Ano específico de cada observação no Codebook; frações convertidas para %. Compilação de fontes heterogêneas, não série anual contínua. Licença CC BY 4.0.";
+                break;
+            }
+            case "wealth":
+            {
+                async Task<Dictionary<(string Country, string Period), double?>> Wealth(string code)
+                {
+                    var url = $"https://api.worldbank.org/v2/country/{string.Join(';', countries)}/indicator/{code}?source=59&date={catalog.StartYear}:{Math.Min(catalog.EndYear, asOf.Year)}&format=json&per_page=20000";
+                    using var doc = JsonDocument.Parse(await Read(url));
+                    if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() != 2 || doc.RootElement[1].ValueKind != JsonValueKind.Array)
+                        throw new InvalidDataException("World Bank wealth accounts returned an unexpected response.");
+                    return doc.RootElement[1].EnumerateArray().Where(r => countries.Contains(r.GetProperty("countryiso3code").GetString()!))
+                        .ToDictionary(r => (r.GetProperty("countryiso3code").GetString()!, r.GetProperty("date").GetString()!), r => Number(r.GetProperty("value")));
+                }
+                var total = await Wealth("NW.TOW.PC.CD");
+                var human = await Wealth("NW.HCA.PC.CD");
+                foreach (var country in countries)
+                    series.Add(new Series(country, total.Where(p => p.Key.Country == country).Select(p => new Observation(p.Key.Period,
+                        p.Value is not null && human.TryGetValue(p.Key, out var humanCapital) && humanCapital is not null ? p.Value - humanCapital : null, definition.StatusDefault)).ToArray()));
+                note = "World Bank Wealth Accounts 2024, fonte 59. Riqueza não humana por habitante = riqueza abrangente nacional por habitante menos capital humano por habitante, ambos em US$ correntes. Não somar as séries reais encadeadas; cobertura 1995–2020 nesta edição.";
+                break;
+            }
             case "derived":
             {
                 var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);

@@ -14,7 +14,7 @@ public sealed class HttpStore : IDisposable
     private readonly Dictionary<string, Provenance> evidence = [];
     private readonly string cache;
     private readonly string archive;
-    private static readonly HashSet<string> Hosts = ["api.worldbank.org", "api.bcb.gov.br", "apisidra.ibge.gov.br", "hdr.undp.org", "www.imf.org", "www.tesourotransparente.gov.br"];
+    private static readonly HashSet<string> Hosts = ["api.worldbank.org", "api.bcb.gov.br", "apisidra.ibge.gov.br", "hdr.undp.org", "www.imf.org", "www.tesourotransparente.gov.br", "datacatalogfiles.worldbank.org"];
 
     public HttpStore(string cache, string archive)
     {
@@ -27,12 +27,13 @@ public sealed class HttpStore : IDisposable
     public Provenance[] Evidence(IEnumerable<string> urls) => urls.Distinct().Select(u => evidence[u]).ToArray();
 
     /// <summary>Fetch a bounded HTTPS response with per-host pacing, conditional caching and Retry-After handling.</summary>
-    public async Task<string> Get(string url)
+    public async Task<string> Get(string url, bool binary = false)
     {
         var uri = new Uri(url);
         if (uri.Scheme != "https" || !Hosts.Contains(uri.Host)) throw new InvalidOperationException("Unapproved data host.");
-        if (memory.TryGetValue(url, out var content)) return content;
-        var key = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(url)));
+        var memoryKey = url + (binary ? "\0binary" : "");
+        if (memory.TryGetValue(memoryKey, out var content)) return content;
+        var key = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(url))) + (binary ? "-binary" : "");
         var payloadPath = Path.Combine(cache, key + ".txt");
         var metaPath = Path.Combine(cache, key + ".json");
         Provenance? prior = File.Exists(metaPath) ? JsonSerializer.Deserialize<Provenance>(await File.ReadAllTextAsync(metaPath)) : null;
@@ -48,7 +49,7 @@ public sealed class HttpStore : IDisposable
             if (response.StatusCode == HttpStatusCode.NotModified && File.Exists(payloadPath) && prior is not null)
             {
                 evidence[url] = prior;
-                return memory[url] = await File.ReadAllTextAsync(payloadPath);
+                return memory[memoryKey] = await File.ReadAllTextAsync(payloadPath);
             }
             if ((response.StatusCode == HttpStatusCode.TooManyRequests || (int)response.StatusCode >= 500) && attempt < 2)
             {
@@ -77,6 +78,7 @@ public sealed class HttpStore : IDisposable
                 throw new InvalidDataException("Provider returned an HTML error instead of the requested data.");
             }
             var hash = Convert.ToHexStringLower(SHA256.HashData(raw));
+            if (binary) content = Convert.ToBase64String(raw);
             evidence[url] = new Provenance(url, hash, response.Headers.ETag?.ToString(), response.Content.Headers.LastModified?.ToString("R"));
             await File.WriteAllTextAsync(payloadPath, content);
             await File.WriteAllTextAsync(metaPath, JsonSerializer.Serialize(evidence[url]));
@@ -87,7 +89,7 @@ public sealed class HttpStore : IDisposable
                 await using var compressed = new GZipStream(file, CompressionLevel.SmallestSize);
                 await compressed.WriteAsync(raw);
             }
-            return memory[url] = content;
+            return memory[memoryKey] = content;
         }
         throw new HttpRequestException("Retry budget exhausted.");
     }

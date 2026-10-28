@@ -1,7 +1,7 @@
 import type { Dataset } from './types'
 
 export interface Dimension { key: string; name: string; score: number | null; inputs: { id: string; value: number | null; label: string }[]; note: string }
-export const idmiVersion = '0.1-experimental'
+export const idmiVersion = '0.2-experimental'
 
 /** Normalize to the internal 1–100 scale; absent values never become the minimum score. */
 export function normalize(value: number | null, lower: number, upper: number, inverse = false, logarithmic = false): number | null {
@@ -31,16 +31,15 @@ export function calculateIdmi(datasets: Dataset[], country: string, year: number
   const input = (id: string, label: string) => ({ id, label, value: raw(id) })
   const pct = (id: string) => normalize(raw(id), 0, 100)
   const energy = geometric([pct('electricity'), pct('clean-cooking'), normalize(raw('electric-consumption'), 500, 8000, false, true), normalize(raw('electric-losses'), 5, 25, true)])
-  const transport = geometric([pct('roads-paved'), normalize(raw('rail-efficiency'), 0.02, 0.5, true)])
+  const transport = geometric([pct('roads-paved'), normalize(raw('logistics'), 1, 5)])
   const water = geometric([pct('water-safe'), pct('sanitation-safe')], [0.65, 0.35])
-  const ports = normalize(raw('port-efficiency'), -500, 500)
   const waste = geometric([pct('waste-collection'), pct('waste-controlled')])
   const digital = geometric([pct('internet'), normalize(raw('broadband'), 0, 40)])
   const meanSchool = normalize(raw('schooling-mean'), 0, 15)
   const expectedSchool = normalize(raw('schooling-expected'), 0, 18)
   const infrastructure = [
-    { key: 'T', name: 'Transportes', score: transport }, { key: 'A', name: 'Água e saneamento', score: water },
-    { key: 'P', name: 'Portos', score: ports }, { key: 'E', name: 'Energia', score: energy },
+    { key: 'T', name: 'Transporte e logística', score: transport }, { key: 'A', name: 'Água e saneamento', score: water },
+    { key: 'E', name: 'Energia', score: energy },
     { key: 'W', name: 'Resíduos', score: waste }, { key: 'D', name: 'Digital', score: digital },
   ]
   const dimensions: Dimension[] = [
@@ -50,7 +49,7 @@ export function calculateIdmi(datasets: Dataset[], country: string, year: number
     { key: 'E', name: 'Educação', score: meanSchool == null || expectedSchool == null ? null : (meanSchool + expectedSchool) / 2, inputs: [input('schooling-mean', 'Média de anos de estudo'), input('schooling-expected', 'Anos esperados de escolaridade')], note: 'Média aritmética das pontuações normalizadas em 0–15 e 0–18 anos.' },
     { key: 'V', name: 'Segurança', score: geometric([normalize(raw('homicides'), 0.5, 30, true, true), normalize(raw('road-deaths'), 2, 30, true, true)]), inputs: [input('homicides', 'Homicídios por 100 mil'), input('road-deaths', 'Mortes no trânsito por 100 mil')], note: 'Média geométrica de escalas logarítmicas inversas. Limites: 0,5–30 e 2–30 por 100 mil.' },
     { key: 'H', name: 'Habitação', score: normalize(raw('slums'), 0, 50, true), inputs: [input('slums', 'População urbana em assentamentos precários')], note: 'Escala inversa de 0% a 50%. Mede precariedade urbana, não o custo do aluguel.' },
-    { key: 'I', name: 'Infraestrutura', score: geometric(infrastructure.map(c => c.score)), inputs: ['roads-paved','rail-efficiency','water-safe','sanitation-safe','port-efficiency','electricity','clean-cooking','electric-consumption','electric-losses','waste-collection','waste-controlled','internet','broadband'].map(id => input(id, id)), note: 'Seis componentes obrigatórios, combinados geometricamente. Portos permanecem como componente separado.' },
+    { key: 'I', name: 'Infraestrutura', score: geometric(infrastructure.map(c => c.score)), inputs: ['roads-paved','logistics','water-safe','sanitation-safe','electricity','clean-cooking','electric-consumption','electric-losses','waste-collection','waste-controlled','internet','broadband'].map(id => input(id, id)), note: 'Cinco componentes obrigatórios, combinados geometricamente. Transporte incorpora logística; portos e ferrovia não recebem uma agregação nacional artificial.' },
     { key: 'L', name: 'Liberdade econômica', score: fraserPublicationAllowed ? normalize(raw('fraser'), 0, 10) : null, inputs: [input('fraser', 'Economic Freedom of the World')], note: 'Fraser Institute. Publicação condicionada à confirmação dos direitos de uso e redistribuição. Sem proxy substituta.' },
   ]
   return { dimensions, infrastructure, total: fraserPublicationAllowed ? publicScore(geometric(dimensions.map(d => d.score))) : null, available: dimensions.filter(d => d.score != null).length }

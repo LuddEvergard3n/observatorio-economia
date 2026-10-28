@@ -29,6 +29,13 @@ describe('IDMI: fixed bounds, missing inputs and reference years', () => {
     expect(calculateIdmi([data], 'BRA', 2023, true).total).toBeNull()
     expect(calculateIdmi([data], 'USA', 2023).available).toBe(0)
   })
+  it('uses five infrastructure components and incorporates logistics into transport', () => {
+    const values: Record<string, number> = { 'roads-paved': 80, logistics: 4, 'water-safe': 90, 'sanitation-safe': 80, electricity: 95, 'clean-cooking': 90, 'electric-consumption': 2000, 'electric-losses': 10, 'waste-collection': 80, 'waste-controlled': 70, internet: 90, broadband: 25 }
+    const data = Object.entries(values).map(([id, value]): Dataset => ({ schemaVersion: 1, id, retrievedAt: '2026-01-01T00:00:00Z', sourceNote: '', provenance: [], series: [{ country: 'BRA', observations: [{ period: '2023', value, status: 'published' }] }] }))
+    const result = calculateIdmi(data, 'BRA', 2023)
+    expect(result.infrastructure.map(component => component.key)).toEqual(['T', 'A', 'E', 'W', 'D'])
+    expect(result.dimensions.find(dimension => dimension.key === 'I')?.score).not.toBeNull()
+  })
 })
 
 describe('statistical presentation and exports', () => {

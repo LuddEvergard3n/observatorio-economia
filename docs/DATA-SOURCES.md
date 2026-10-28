@@ -5,6 +5,8 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 | Grupo | Origem e integração | Limites |
 | --- | --- | --- |
 | Atividade, população, infraestrutura e comparações | [Banco Mundial WDI API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation) | Metadados de cada série identificam produtores nacionais e internacionais; cobertura irregular. Não preencher lacunas. |
+| Riqueza não humana por habitante | [Banco Mundial Wealth Accounts 2024](https://datacatalog.worldbank.org/search/dataset/0042066/wealth-accounting), API fonte 59 | Riqueza abrangente menos capital humano, ambos em US$ correntes e da mesma edição. Cobertura 1995–2020; não usar a diferença entre componentes reais encadeados. |
+| Cobertura da coleta de resíduos | [Banco Mundial What a Waste 3.0](https://datacatalog.worldbank.org/search/dataset/0039597/what-a-waste-global-database) | Indicador nacional de população atendida. Cada país preserva o ano do Codebook; não é série anual contínua nem substitui população por domicílios ou peso de resíduos. |
 | IPCA, INPC, Selic, PTAX, contas públicas e crédito | [BCB SGS](https://dadosabertos.bcb.gov.br/) | IPCA/INPC são produzidos pelo IBGE; BCB é republicador. Janela de cinco anos por chamada, intervalos recentes de dois anos nas atualizações. |
 | IGP-M | [FGV IBRE](https://portalibre.fgv.br/igp), republicado no [SGS 189](https://www3.bcb.gov.br/sgspub/consultarvalores/consultarValoresSeries.do?method=consultarSeries&series=189) | Índice diferente do IPCA; início em junho de 1989. Não comparar como cestas idênticas. |
 | PIB trimestral, indústria, trabalho e analfabetismo | [API SIDRA](https://apisidra.ibge.gov.br/) | Classificações e variáveis fixadas no catálogo. PNAD Contínua a partir de 2012, sem emenda à antiga PME. |
@@ -28,8 +30,8 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.
 - `formal-jobs`: o MTE publica tabelas mensais em XLSX e microdados TXT, sem endpoint agregado estável. O conector precisa preservar ajustes retroativos e a quebra de captação de 2020.
 - `primary-imf`: indicador não retornado pelo DataMapper. O WEO de outubro de 2026 oferece XLSX oficial, mas o CDN recusou a coleta automatizada testada; o novo IMF Data API ainda exige conector e validação de unidades, edição e ano observado/projetado.
-- `wealth`, `rail-efficiency`, `port-efficiency`, `waste-collection`, `waste-controlled`: exigem validação de cobertura, comparabilidade e agregação nacional antes de integrar o IDMI.
-- `fraser`: o relatório 2025 informa que o conjunto é gratuito e recomenda o painel encadeado para estudos longitudinais. O XLSX oficial, porém, respondeu com desafio Cloudflare à coleta automatizada. Não há proxy substituta.
+- `rail-efficiency`, `port-efficiency`, `waste-controlled`: exigem validação de cobertura, comparabilidade e agregação nacional antes de integrar o IDMI. Em particular, CPPI é uma medida por porto, não um indicador nacional.
+- `fraser`: o download é gratuito, mas as condições orientam que outros usuários sejam encaminhados ao arquivo original. Sem autorização inequívoca de redistribuição, os valores não são republicados; o XLSX também respondeu com desafio Cloudflare à coleta automatizada. Não há proxy substituta.
 
 ## Proveniência, revisão e direitos
 

@@ -1,6 +1,10 @@
-# IDMI 0.1 experimental
+# IDMI 0.2 experimental
 
 Índice de Desenvolvimento Material e Institucional, metodologia autoral fornecida pelo responsável pelo projeto. Não é indicador oficial do PNUD, Banco Mundial ou Fraser.
+
+## Versão 0.2
+
+Infraestrutura combina cinco componentes por média geométrica: transporte e logística, água e saneamento, energia, resíduos e digital. Transporte combina rodovias pavimentadas e desempenho logístico. Portos e eficiência ferroviária permanecem no catálogo, mas não recebem média nacional artificial nesta versão. A mudança foi aprovada pelo responsável pelo projeto em 28/10/2026 e não torna comparáveis resultados calculados em versões diferentes.
 
 ## Normalização
 
@@ -28,23 +32,22 @@ Resultados geométricos são limitados numericamente ao intervalo 1–100 para i
 | E, educação | Média aritmética das pontuações de anos médios de estudo (0–15) e esperados (0–18). |
 | V, segurança | Média geométrica das escalas inversas log de homicídios (0,5–30) e mortes no trânsito (2–30), por 100 mil. |
 | H, habitação | População urbana em assentamentos precários, 0–50%, inversa. Não mede aluguel/renda. |
-| I, infraestrutura | Média geométrica dos seis componentes abaixo. |
+| I, infraestrutura | Média geométrica dos cinco componentes abaixo. |
 | L, liberdade econômica | Fraser EFW 0–10, normalizado para 1–100. Dados e nota geral não publicados enquanto direitos estiverem pendentes. |
 
 `IDMI = 100 × (((W×P×S×E×V×H×I×L)^(1/8)) − 1)/99`.
 
 ## Infraestrutura
 
-Mantida a opção de **seis componentes**, com portos separados. A proposta alternativa de cinco blocos dos anexos não é usada nesta versão.
+Esta versão usa **cinco componentes**. A logística é incorporada ao transporte; portos e eficiência ferroviária continuam visíveis no catálogo, mas não recebem uma média nacional artificial.
 
-- Transporte: média geométrica de rodovias pavimentadas (%) e eficiência ferroviária, pesos 50%/50%. Faixa ferroviária proposta: 0,02–0,50 MJ/t.km, inversa.
+- Transporte e logística: média geométrica de rodovias pavimentadas (%) e desempenho logístico (LPI, 1–5).
 - Água e saneamento: água potável gerenciada com segurança (%) e saneamento seguro (%), pesos 65%/35%.
-- Portos: CPPI, faixa proposta −500 a +500; ainda exige regra nacional e tratamento documentado para países sem litoral. Não atribuir zero pela ausência de porto marítimo.
 - Energia: média geométrica de acesso à eletricidade (%), tecnologias limpas de cocção (%), consumo elétrico (500–8.000 kWh/habitante, log) e perdas (5–25%, inversa).
 - Resíduos: média geométrica da coleta regular e da gestão controlada (%), exigindo cobertura nacional comparável, sem extrapolar cidades selecionadas.
 - Digital: média geométrica de usuários de internet (%) e banda larga fixa (0–40 assinaturas por 100 habitantes).
 
-Percentuais positivos usam limites 0–100. Os seis blocos têm pesos iguais na agregação. As faixas ferroviária, portuária, de energia e de banda larga são escolhas experimentais, não padrões universais validados. O software não deve publicar ranking como se essas decisões estivessem cientificamente estabelecidas.
+Percentuais positivos usam limites 0–100. Os cinco blocos têm pesos iguais na agregação. As faixas de energia e de banda larga são escolhas experimentais, não padrões universais validados. O software não deve publicar ranking como se essas decisões estivessem cientificamente estabelecidas.
 
 ## Publicação e limites
 
