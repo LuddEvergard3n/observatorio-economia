@@ -14,5 +14,5 @@ export interface Dataset {
   provenance: { url: string; sha256: string; eTag: string | null; lastModified: string | null }[];
   series: { country: string; observations: Observation[] }[];
 }
-export interface TimelineEvent { id: string; date: string; title: string; type: 'method' | 'law' | 'context'; description: string; source: string; url: string; categories: Category[]; indicators?: string[]; effective?: string }
+export interface TimelineEvent { id: string; date: string; title: string; type: 'method' | 'law' | 'context'; description: string; source: string; url: string; categories: Category[]; indicators?: string[]; effective?: string; administration?: string; responsible?: string; before?: string; after?: string }
 export interface Revision { indicator: string; country: string; period: string; previous: number | null; current: number | null; detectedAt: string }

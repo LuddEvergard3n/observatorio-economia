@@ -70,7 +70,7 @@ Não há diretório `include/`: este projeto não possui cabeçalhos C/C++.
 
 ## Dados, limitações e publicação
 
-Leia [fontes e cobertura](docs/DATA-SOURCES.md), [metodologia IDMI](docs/IDMI.md) e [operação](docs/OPERATIONS.md).
+Leia [fontes e cobertura](docs/DATA-SOURCES.md), [mudanças metodológicas e contexto político](docs/METHODOLOGY-CHANGES.md), [metodologia IDMI](docs/IDMI.md) e [operação](docs/OPERATIONS.md).
 
 O catálogo inclui integrações pendentes, identificadas no painel. Isso não equivale a cobertura completa de todas as métricas desde 1988. Em particular: DPF/Tesouro, saldo Novo Caged, resultado primário internacional, patrimônio não humano e alguns componentes de infraestrutura precisam de integração ou validação adicional. Dados Fraser não são redistribuídos nesta versão.
 

@@ -24,6 +24,9 @@ Check(revisions.Length == 2 && revisions.Any(r => r.Period == "2021" && r.Curren
 var deflated = DataRules.Deflate([Point("2025-01", 100), Point("2025-02", 110), Point("2025-03", 121)], [Point("2025-02", 10), Point("2025-03", 10)], "2025-02");
 Check(Math.Abs(deflated[0].Value!.Value - 110) < 1e-8 && Math.Abs(deflated[2].Value!.Value - 110) < 1e-8, "Deflate in both directions");
 Check(DataRules.Deflate([Point("2025-01", 100)], [], "2025-02")[0].Value is null, "No imputed inflation");
+var debtCsv = "Titulo/Contrato;Vencimento do Titulo/Contrato;Valor do Estoque;Quantidade do Estoque;Mes do Estoque;Classe da Carteira;Tipo de Divida\nA;01/01/2030;1000000,00;1;08/2026;Mercado;Dívida Interna\nB;01/01/2030;500000,00;1;08/2026;Mercado;Dívida Externa\nC;01/01/2030;9000000,00;1;08/2026;Banco Central;Dívida Interna";
+var debt = DataRules.AggregateFederalDebt(new StringReader(debtCsv), "published");
+Check(debt.Length == 1 && debt[0].Period == "2026-08" && debt[0].Value == 1.5, "Aggregate DPF market stock without BCB portfolio");
 // Exercise the real publication boundary without network: an unsupported provider must preserve the existing file.
 var fixture = Path.GetFullPath(Path.Combine(".cache", "retention-check", Guid.NewGuid().ToString("N")));
 Directory.CreateDirectory(Path.Combine(fixture, "series"));

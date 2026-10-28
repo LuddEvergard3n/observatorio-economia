@@ -10,6 +10,7 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 | PIB trimestral, indústria, trabalho e analfabetismo | [API SIDRA](https://apisidra.ibge.gov.br/) | Classificações e variáveis fixadas no catálogo. PNAD Contínua a partir de 2012, sem emenda à antiga PME. |
 | IDH, educação, longevidade e RNB PPC | [PNUD HDR 2025](https://hdr.undp.org/data-center/documentation-and-downloads) | Edição congelada, histórico 1990–2023. PPC em dólares internacionais de 2021. Não mudar edição sem revisão metodológica. |
 | Dívida do governo geral internacional | [IMF DataMapper API](https://www.imf.org/external/datamapper/api/v1/GGXWDG_NGDP/BRA) | API mistura origens observadas e estimadas. Rotulamos estimativa/base mista; excluímos anos a partir do ano corrente. Não equivale à definição nacional da DBGG. |
+| Dívida pública federal | [Tesouro Transparente · Estoque da DPF](https://www.tesourotransparente.gov.br/ckan/dataset/estoque-da-divida-publica-federal) | CSV em reais correntes. Agregação mensal da dívida interna e externa em poder do mercado, convertida para R$ milhões; carteira do Banco Central excluída. Na validação de 27/10/2026, a série terminava em agosto de 2026. |
 | Salário mínimo real | Cálculo sobre SGS 1619 e 188 | Salário nominal × INPC dez/2025 ÷ INPC do mês. Qualquer mês ausente no intervalo invalida o resultado. Período anterior ao real não é convertido silenciosamente. |
 
 ## Conceitos que não devem ser misturados
@@ -25,11 +26,10 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 ## Pendências explícitas
 
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.
-- `formal-jobs`: arquivos agregados Novo Caged ainda precisam de conector validado; a fonte divulga planilhas e painéis, sem endpoint estável integrado aqui. A quebra de 2020 permanece documentada.
-- `federal-debt`: download CSV do Tesouro respondeu com limite de acesso durante a implantação; não tentamos contornar o bloqueio. Sem substituição por DBGG. [Conjunto oficial](https://www.tesourotransparente.gov.br/ckan/dataset/estoque-da-divida-publica-federal).
-- `primary-imf`: indicador não retornado pelo endpoint DataMapper consultado. Requer arquivo WEO e validação de unidades/edição.
+- `formal-jobs`: o MTE publica tabelas mensais em XLSX e microdados TXT, sem endpoint agregado estável. O conector precisa preservar ajustes retroativos e a quebra de captação de 2020.
+- `primary-imf`: indicador não retornado pelo DataMapper. O WEO de outubro de 2026 oferece XLSX oficial, mas o CDN recusou a coleta automatizada testada; o novo IMF Data API ainda exige conector e validação de unidades, edição e ano observado/projetado.
 - `wealth`, `rail-efficiency`, `port-efficiency`, `waste-collection`, `waste-controlled`: exigem validação de cobertura, comparabilidade e agregação nacional antes de integrar o IDMI.
-- `fraser`: direitos de uso e redistribuição a confirmar. Não há proxy substituta.
+- `fraser`: o relatório 2025 informa que o conjunto é gratuito e recomenda o painel encadeado para estudos longitudinais. O XLSX oficial, porém, respondeu com desafio Cloudflare à coleta automatizada. Não há proxy substituta.
 
 ## Proveniência, revisão e direitos
 

@@ -14,7 +14,7 @@ public sealed class HttpStore : IDisposable
     private readonly Dictionary<string, Provenance> evidence = [];
     private readonly string cache;
     private readonly string archive;
-    private static readonly HashSet<string> Hosts = ["api.worldbank.org", "api.bcb.gov.br", "apisidra.ibge.gov.br", "hdr.undp.org", "www.imf.org"];
+    private static readonly HashSet<string> Hosts = ["api.worldbank.org", "api.bcb.gov.br", "apisidra.ibge.gov.br", "hdr.undp.org", "www.imf.org", "www.tesourotransparente.gov.br"];
 
     public HttpStore(string cache, string archive)
     {

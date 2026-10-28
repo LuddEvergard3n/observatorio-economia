@@ -44,7 +44,7 @@ export default function Chart({ data, definition, countries, from, to, events = 
         lineStyle: { width: country.id === 'BRA' ? 2.8 : 1.8, type: index > 5 ? 'dashed' : 'solid' },
         emphasis: { focus: 'series' },
         data: chartPoints(data.series.find(s => s.country === country.id)?.observations ?? [], definition.frequency, from, to),
-        ...(index === 0 && relevant.length ? { markLine: { silent: true, symbol: 'none', lineStyle: { color: '#b79650', type: 'dashed', width: 1 }, label: { show: false }, data: relevant.map(e => ({ xAxis: Date.parse(e.date + 'T00:00:00Z'), name: e.title })) } } : {}),
+        ...(index === 0 && relevant.length ? { markLine: { silent: true, symbol: 'none', lineStyle: { color: '#b79650', type: 'dashed', width: 1 }, label: { show: true, formatter: '{b}', color: ink, fontSize: 9 }, data: relevant.map(e => ({ xAxis: Date.parse(e.date + 'T00:00:00Z'), name: e.date.slice(0, 4) })) } } : {}),
       })),
     }, true)
   }, [data, definition, countries, from, to, events, dark])

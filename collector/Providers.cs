@@ -7,6 +7,7 @@ namespace Observatory;
 public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, string output)
 {
     private const string UndpUrl = "https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Composite_indices_complete_time_series.csv";
+    private const string FederalDebtUrl = "https://www.tesourotransparente.gov.br/ckan/dataset/0998f610-bc25-4ce3-b32c-a873447500c2/resource/b6280ed3-ef7e-4569-954a-bded97c2c8a1/download/estoquedpf.csv";
     private readonly HashSet<string> countries = catalog.Countries.Select(c => c.Id).ToHashSet();
 
     /// <summary>Fetch one series definition. A failed response never replaces the prior snapshot.</summary>
@@ -110,6 +111,13 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
                     series.Add(new Series(country.Name, country.Value.EnumerateObject().Where(p => int.Parse(p.Name, CultureInfo.InvariantCulture) < asOf.Year)
                         .Select(p => new Observation(p.Name, Number(p.Value), "estimate")).ToArray()));
                 note = definition.Notes;
+                break;
+            }
+            case "tesouro-dpf":
+            {
+                using var reader = new StringReader(await Read(FederalDebtUrl));
+                series.Add(new Series("BRA", DataRules.AggregateFederalDebt(reader, definition.StatusDefault)));
+                note = "Estoque mensal da DPF em poder do mercado, somando dívida interna e externa. Valores do CSV em reais, convertidos para R$ milhões; títulos na carteira do Banco Central são excluídos para evitar mistura de conceitos.";
                 break;
             }
             default: throw new InvalidOperationException("Provider not implemented.");

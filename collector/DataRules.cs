@@ -1,10 +1,31 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Observatory;
 
 public static partial class DataRules
 {
+    /// <summary>Aggregate the Tesouro title-level CSV into monthly DPF held by the market, expressed in R$ millions.</summary>
+    public static Observation[] AggregateFederalDebt(TextReader reader, string status)
+    {
+        using var parser = new TextFieldParser(reader) { HasFieldsEnclosedInQuotes = true };
+        parser.SetDelimiters(";");
+        var headers = parser.ReadFields() ?? throw new InvalidDataException("Missing Tesouro header.");
+        string[] expected = ["Titulo/Contrato", "Vencimento do Titulo/Contrato", "Valor do Estoque", "Quantidade do Estoque", "Mes do Estoque", "Classe da Carteira", "Tipo de Divida"];
+        if (!headers.SequenceEqual(expected)) throw new InvalidDataException("Tesouro DPF schema changed.");
+        var totals = new Dictionary<string, double>();
+        while (!parser.EndOfData)
+        {
+            var row = parser.ReadFields()!;
+            if (row.Length != headers.Length) throw new InvalidDataException("Malformed Tesouro DPF row.");
+            if (row[5] != "Mercado") continue;
+            var month = DateOnly.ParseExact("01/" + row[4], "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM", CultureInfo.InvariantCulture);
+            totals[month] = totals.GetValueOrDefault(month) + (ParseNumber(row[2]) ?? throw new InvalidDataException("Missing DPF stock."));
+        }
+        return totals.OrderBy(p => p.Key).Select(p => new Observation(p.Key, p.Value / 1_000_000, status)).ToArray();
+    }
+
     /// <summary>Convert monthly nominal wages to a fixed month's purchasing power; any missing intervening rate invalidates that point.</summary>
     public static Observation[] Deflate(Observation[] nominal, Observation[] inflation, string baseMonth)
     {
