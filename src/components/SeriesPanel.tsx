@@ -1,31 +1,36 @@
 import { lazy, Suspense, useState } from 'react'
-import { ArrowDownToLine, ExternalLink, Info, Link as LinkIcon } from 'lucide-react'
+import { ArrowDownToLine, CalendarDays, ExternalLink, Info, Link as LinkIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DataTable } from './DataTable'
 import { useDataset } from '@/lib/data'
 import { csv, download, frequencies, timestamp } from '@/lib/format'
-import { events } from '@/content/events'
+import { eventsForIndicator } from '@/content/events'
+import { useTranslation } from '@/lib/i18n'
 import type { Country, Entry } from '@/lib/types'
 
 const Chart = lazy(() => import('./Chart'))
 
 /** Show a published series, its audit trail and export controls without manufacturing missing data. */
 export function SeriesPanel({ entry, countries, from, to, version, dark, compact = false }: { entry: Entry; countries: Country[]; from: number; to: number; version: string; dark: boolean; compact?: boolean }) {
+  const { t } = useTranslation()
   const definition = entry.definition
   const enabled = Object.values(entry.summaries).some(s => s.count > 0)
   const { data, loading, error } = useDataset(definition.id, version, enabled)
   const [annotate, setAnnotate] = useState(true)
   const [message, setMessage] = useState('')
-  const related = events.filter(event => event.type === 'method' && (event.indicators ? event.indicators.includes(definition.id) : event.categories.includes(definition.category)))
+  const applicable = eventsForIndicator(definition.id, definition.category)
+  const related = applicable.filter(event => event.type === 'method')
+  const periodEvents = applicable.filter(event => Number(event.date.slice(0, 4)) >= from && Number(event.date.slice(0, 4)) <= to)
   return <section className="panel series-panel" aria-label={definition.name}>
     <div className="panel-heading"><div><div className="eyebrow">{compact ? 'TRAJETÓRIA HISTÓRICA' : frequencies[definition.frequency]}</div><h2>{definition.name}</h2><p>{definition.description}</p></div><Badge variant="outline">{definition.unit}</Badge></div>
     {entry.status === 'error' && <div className="notice warning"><Info size={16} /><span>A última consulta à fonte falhou. {entry.lastSuccess ? `Exibindo o conjunto preservado de ${timestamp(entry.lastSuccess)}.` : 'A série ficará disponível após uma coleta válida.'}</span></div>}
     {related.length > 0 && <div className="method-alert"><strong>Mudanças que afetam a comparação</strong>{related.map(event => <article key={event.id}><div><span>{event.date.slice(0,4)} · {event.title}</span>{event.administration && <small>Governo em exercício: {event.administration}</small>}{event.responsible && <small>Responsável pela metodologia: {event.responsible}</small>}</div>{event.before && event.after && <p><b>Antes:</b> {event.before}<br/><b>Depois:</b> {event.after}</p>}<a href={event.url} target="_blank" rel="noreferrer">Fonte primária <ExternalLink size={12}/></a></article>)}</div>}
     {loading ? <div className="chart-loading" role="status"><span className="loading-bar" />Carregando a série histórica…</div> : error ? <div className="empty-state"><Info /><h3>Não foi possível abrir a série</h3><p>{error}</p><Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button></div> : !data ? <div className="empty-state"><Info /><h3>Dados ainda indisponíveis</h3><p>{definition.notes}</p><a href={definition.sourceUrl} target="_blank" rel="noreferrer" className="text-link">Consultar a fonte <ExternalLink size={14} /></a></div> : <>
-      <Suspense fallback={<div className="chart-loading">Preparando o gráfico…</div>}><Chart data={data} definition={definition} countries={countries} from={from} to={to} events={annotate ? related : []} dark={dark} height={compact ? 310 : 390} /></Suspense>
-      <div className="series-toolbar"><label className="check-label"><input type="checkbox" checked={annotate} onChange={e => setAnnotate(e.target.checked)} /> Mudanças metodológicas</label><div className="export-actions"><Button variant="ghost" size="sm" onClick={() => download(csv(data, definition, countries.map(c => c.id), from, to), `${definition.id}-${from}-${to}.csv`, 'text/csv;charset=utf-8')}><ArrowDownToLine size={14} /> CSV</Button>{!compact && <Button variant="ghost" size="sm" onClick={() => download(JSON.stringify({ definition, ...data, series: data.series.filter(s => countries.some(c => c.id === s.country)).map(s => ({ ...s, observations: s.observations.filter(p => Number(p.period.slice(0, 4)) >= from && Number(p.period.slice(0, 4)) <= to) })) }, null, 2), `${definition.id}.json`, 'application/json')}>JSON</Button>}<Button variant="ghost" size="sm" onClick={async () => {
+      <Suspense fallback={<div className="chart-loading">Preparando o gráfico…</div>}><Chart data={data} definition={definition} countries={countries} from={from} to={to} events={annotate ? periodEvents : []} dark={dark} height={compact ? 310 : 390} /></Suspense>
+      {!compact && annotate && periodEvents.length > 0 && <section className="chart-context" aria-label={t('chart.events')}><div className="chart-context-heading"><CalendarDays size={15}/><div><strong>{t('chart.events')}</strong><span>{periodEvents.length}</span></div></div><div className="chart-context-list">{periodEvents.map(event => <a href={`#history?event=${event.id}`} key={event.id}><span>{event.date.slice(0, 4)}</span><b>{event.title}</b><small>{event.type === 'method' ? 'Método' : event.type === 'law' ? 'Lei / norma' : 'Contexto'}</small></a>)}</div><p>{t('chart.context')} <a href="#history">{t('chart.history')}</a></p></section>}
+      <div className="series-toolbar"><label className="check-label"><input type="checkbox" checked={annotate} onChange={e => setAnnotate(e.target.checked)} /> {t('chart.toggle')}</label><div className="export-actions"><Button variant="ghost" size="sm" onClick={() => download(csv(data, definition, countries.map(c => c.id), from, to), `${definition.id}-${from}-${to}.csv`, 'text/csv;charset=utf-8')}><ArrowDownToLine size={14} /> CSV</Button>{!compact && <Button variant="ghost" size="sm" onClick={() => download(JSON.stringify({ definition, ...data, series: data.series.filter(s => countries.some(c => c.id === s.country)).map(s => ({ ...s, observations: s.observations.filter(p => Number(p.period.slice(0, 4)) >= from && Number(p.period.slice(0, 4)) <= to) })) }, null, 2), `${definition.id}.json`, 'application/json')}>JSON</Button>}<Button variant="ghost" size="sm" onClick={async () => {
         const url = `${window.location.origin}${window.location.pathname}#compare?indicator=${definition.id}&countries=${countries.map(c => c.id).join(',')}&from=${from}&to=${to}`
         try { await navigator.clipboard.writeText(url); setMessage('Link copiado.') } catch { setMessage(url) }
       }}><LinkIcon size={14} /> Compartilhar</Button></div></div>

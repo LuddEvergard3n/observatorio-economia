@@ -1,4 +1,4 @@
-import type { TimelineEvent } from '@/lib/types'
+import type { Category, TimelineEvent } from '@/lib/types'
 
 export const events: TimelineEvent[] = [
   { id: 'constitution', date: '1988-10-05', title: 'Constituição de 1988', type: 'law', description: 'Marco das regras tributárias, orçamentárias, sociais e da ordem econômica. Efeitos dependem de regulamentação e implementação.', source: 'Constituição Federal', url: 'https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', categories: ['fiscal', 'labor', 'development'] },
@@ -24,3 +24,8 @@ export const events: TimelineEvent[] = [
   { id: 'pnad2025', date: '2025-07-31', title: 'PNAD Contínua · reponderação', type: 'method', description: 'Reponderação com projeções populacionais divulgadas em 2024, incorporando o Censo 2022. A revisão alcança períodos anteriores; não muda a definição de pessoa desocupada e não deve ser interpretada como mudança ocorrida apenas no mês de divulgação.', source: 'IBGE', url: 'https://www.ibge.gov.br/comunicados/44067-pnad-continua-reponderacao-em-2025', categories: ['labor'], administration: 'Lula III · 2023–2026', responsible: 'IBGE', before: 'Pesos baseados nas projeções populacionais então vigentes.', after: 'Pesos recalculados com as projeções de 2024, que incorporam o Censo 2022.' },
   { id: 'lpi2', date: '2026-04-22', title: 'LPI 2.0 · nova estrutura internacional', type: 'method', description: 'O Banco Mundial substitui o antigo índice de pesquisa por indicadores operacionais de logística. A série de escala 1–5 termina em 2023; os novos indicadores não formam continuação direta.', source: 'Banco Mundial', url: 'https://lpi.worldbank.org/en/about', categories: ['infrastructure'], indicators: ['logistics'] },
 ]
+
+/** Return documented events that explicitly name a series or apply to its category. */
+export function eventsForIndicator(indicatorId: string, category: Category): TimelineEvent[] {
+  return events.filter(event => event.indicators ? event.indicators.includes(indicatorId) : event.categories.includes(category))
+}

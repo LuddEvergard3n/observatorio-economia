@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { eventsForIndicator } from '../../src/content/events'
 import { completedIdmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
 import { chartPoints, compound, csvCell, number } from '../../src/lib/format'
 
@@ -36,5 +37,15 @@ describe('statistical presentation and exports', () => {
     expect(csvCell('=HYPERLINK("bad")')).toBe('"\'=HYPERLINK(""bad"")"')
     expect(csvCell(-5)).toBe('"-5"')
     expect(csvCell(null)).toBe('""')
+  })
+})
+
+describe('historical chart context', () => {
+  it('includes documented category context and honors explicit series links', () => {
+    const hdiEvents = eventsForIndicator('hdi', 'development').map(event => event.id)
+    const ipcaEvents = eventsForIndicator('ipca', 'prices').map(event => event.id)
+    expect(hdiEvents).toEqual(expect.arrayContaining(['constitution', 'hdi2010', 'hdi2025']))
+    expect(ipcaEvents).toContain('ipca2020')
+    expect(ipcaEvents).not.toContain('ppp2021')
   })
 })

@@ -31,20 +31,20 @@ export default function Chart({ data, definition, countries, from, to, events = 
     const relevant = events.filter(e => Number(e.date.slice(0, 4)) >= from && Number(e.date.slice(0, 4)) <= to).slice(-8)
     instance.current.setOption({
       animation: false,
-      aria: { enabled: true, label: { description: `${definition.name}, em ${definition.unit}. Países: ${countries.map(c => c.name).join(', ')}. Período de ${from} a ${to}. Lacunas não são preenchidas. Os valores completos estão na tabela abaixo do gráfico.` } },
+      aria: { enabled: true, label: { description: `${definition.name}, em ${definition.unit}. Países: ${countries.map(c => c.name).join(', ')}. Período de ${from} a ${to}. Lacunas não são preenchidas. Eventos documentados são marcadores de contexto, não de causalidade. Os valores completos estão na tabela abaixo do gráfico.` } },
       color: countries.map(c => c.color),
-      grid: { left: 16, right: 20, top: 40, bottom: 60, containLabel: true },
-      tooltip: { trigger: 'axis', confine: true, backgroundColor: dark ? '#1b3027' : '#fff', borderColor: grid, textStyle: { color: ink }, valueFormatter: (value: number) => number(value, definition.id === 'hdi' ? 3 : 2) },
-      legend: { top: 0, left: 10, textStyle: { color: ink, fontSize: 11 }, icon: 'roundRect', itemHeight: 3, itemWidth: 16, type: 'scroll' },
-      xAxis: { type: 'time', min: Date.UTC(from, 0, 1), max: Date.UTC(to, 11, 31), axisLine: { lineStyle: { color: grid } }, axisTick: { show: false }, axisLabel: { color: ink, hideOverlap: true }, splitLine: { show: false } },
-      yAxis: { type: 'value', scale: true, axisLabel: { color: ink, formatter: (value: number) => number(value, Math.abs(value) < 1 ? 2 : 0, Math.abs(value) >= 10000) }, splitLine: { lineStyle: { color: grid, type: 'dashed' } } },
-      dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', bottom: 8, height: 18, borderColor: 'transparent', backgroundColor: dark ? '#263c31' : '#f1f4f0', fillerColor: '#39775b20', textStyle: { color: ink }, showDetail: false }],
+      grid: { left: 20, right: 28, top: 48, bottom: 72, containLabel: true },
+      tooltip: { trigger: 'axis', confine: true, padding: [10, 12], backgroundColor: dark ? '#1b3027' : '#fff', borderColor: grid, textStyle: { color: ink, fontSize: 12 }, axisPointer: { type: 'line', lineStyle: { color: '#7b9186', type: 'dashed' } }, valueFormatter: (value: number) => number(value, definition.id === 'hdi' ? 3 : 2) },
+      legend: { top: 4, left: 12, textStyle: { color: ink, fontSize: 11 }, icon: 'roundRect', itemHeight: 4, itemWidth: 18, itemGap: 14, type: 'scroll' },
+      xAxis: { type: 'time', min: Date.UTC(from, 0, 1), max: Date.UTC(to, 11, 31), axisLine: { lineStyle: { color: grid } }, axisTick: { show: false }, axisLabel: { color: ink, fontSize: 10, hideOverlap: true, margin: 12 }, splitLine: { show: false } },
+      yAxis: { type: 'value', scale: true, axisLabel: { color: ink, fontSize: 10, margin: 12, formatter: (value: number) => number(value, Math.abs(value) < 1 ? 2 : 0, Math.abs(value) >= 10000) }, splitLine: { lineStyle: { color: grid, type: 'dashed', opacity: .85 } } },
+      dataZoom: [{ type: 'inside', filterMode: 'none' }, { type: 'slider', bottom: 12, height: 20, borderColor: 'transparent', backgroundColor: dark ? '#263c31' : '#f1f4f0', fillerColor: '#39775b20', textStyle: { color: ink }, showDetail: false }],
       series: countries.map((country, index) => ({
         name: country.name, type: 'line', showSymbol: false, symbolSize: 5, connectNulls: false,
-        lineStyle: { width: country.id === 'BRA' ? 2.8 : 1.8, type: index > 5 ? 'dashed' : 'solid' },
-        emphasis: { focus: 'series' },
+        lineStyle: { width: country.id === 'BRA' ? 3 : 2, type: index > 5 ? 'dashed' : 'solid' },
+        emphasis: { focus: 'series', lineStyle: { width: 3.5 } },
         data: chartPoints(data.series.find(s => s.country === country.id)?.observations ?? [], definition.frequency, from, to),
-        ...(index === 0 && relevant.length ? { markLine: { silent: true, symbol: 'none', lineStyle: { color: '#b79650', type: 'dashed', width: 1 }, label: { show: true, formatter: '{b}', color: ink, fontSize: 9 }, data: relevant.map(e => ({ xAxis: Date.parse(e.date + 'T00:00:00Z'), name: e.date.slice(0, 4) })) } } : {}),
+        ...(index === 0 && relevant.length ? { markLine: { silent: true, symbol: 'none', lineStyle: { color: '#b79650', type: 'dashed', width: 1 }, label: { show: true, formatter: '{b}', color: ink, fontSize: 9, backgroundColor: dark ? '#1b3027dd' : '#fffffff2', padding: [2, 4], borderRadius: 3 }, data: relevant.map(e => ({ xAxis: Date.parse(e.date + 'T00:00:00Z'), name: e.date.slice(0, 4) })) } } : {}),
       })),
     }, true)
   }, [data, definition, countries, from, to, events, dark])
