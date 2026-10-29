@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { isIdmiProfilePackage, type IdmiProfile } from './idmi'
 import type { Dataset, Manifest } from './types'
 
 const cache = new Map<string, Promise<Dataset>>()
+let idmiProfiles: Promise<IdmiProfile[]> | null = null
 
 /** Load the published manifest; retries always request the current deployment. */
 export async function getManifest(): Promise<Manifest> {
@@ -24,6 +26,18 @@ export function getDataset(id: string, version: string): Promise<Dataset> {
       return data
     }).catch(error => { cache.delete(key); throw error }))
   return cache.get(key)!
+}
+
+/** Load the frozen, versioned 2023 IDMI profile package; it is separate from the hourly collector. */
+export function getIdmiProfiles(): Promise<IdmiProfile[]> {
+  if (!idmiProfiles) idmiProfiles = fetch(`${import.meta.env.BASE_URL}data/idmi-2023-profiles.json`)
+    .then(async response => {
+      if (!response.ok) throw new Error('O pacote IDMI 2023 não está disponível.')
+      const data: unknown = await response.json()
+      if (!isIdmiProfilePackage(data)) throw new Error('O pacote IDMI 2023 tem formato incompatível.')
+      return data
+    }).catch(error => { idmiProfiles = null; throw error })
+  return idmiProfiles
 }
 
 /** Ignore late responses when the selected series changes or the page unmounts. */

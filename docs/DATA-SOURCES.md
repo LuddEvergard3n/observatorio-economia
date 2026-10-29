@@ -30,7 +30,7 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.
 - `formal-jobs`: o MTE publica tabelas mensais em XLSX e microdados TXT, sem endpoint agregado estável. O conector precisa preservar ajustes retroativos e a quebra de captação de 2020.
 - `primary-imf`: indicador não retornado pelo DataMapper. O WEO de outubro de 2026 oferece XLSX oficial, mas o CDN recusou a coleta automatizada testada; o novo IMF Data API ainda exige conector e validação de unidades, edição e ano observado/projetado.
-- `rail-efficiency`, `port-efficiency`, `waste-controlled`: exigem validação de cobertura, comparabilidade e agregação nacional antes de integrar o IDMI. Em particular, CPPI é uma medida por porto, não um indicador nacional.
+- `rail-efficiency`, `port-efficiency`, `waste-controlled`: exigem validação de cobertura, comparabilidade e agregação nacional para entrarem no catálogo recorrente. O pacote IDMI 2023 congelado não substitui essas lacunas por proxies; CPPI, em particular, é uma medida por porto, não um indicador nacional.
 - `fraser`: o download é gratuito, mas as condições orientam que outros usuários sejam encaminhados ao arquivo original. Sem autorização inequívoca de redistribuição, os valores não são republicados; o XLSX também respondeu com desafio Cloudflare à coleta automatizada. Não há proxy substituta.
 
 ## Proveniência, revisão e direitos

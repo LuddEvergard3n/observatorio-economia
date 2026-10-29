@@ -1,40 +1,22 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { calculateIdmi, geometric, normalize, publicScore } from '../../src/lib/idmi'
+import { completedIdmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
 import { chartPoints, compound, csvCell, number } from '../../src/lib/format'
-import type { Dataset } from '../../src/lib/types'
 
-describe('IDMI: fixed bounds, missing inputs and reference years', () => {
-  it('clips endpoints without converting absent data to zero', () => {
-    expect(normalize(-1, 0, 100)).toBe(1)
-    expect(normalize(101, 0, 100)).toBe(100)
-    expect(normalize(0, 0, 100, true)).toBe(100)
-    expect(normalize(null, 0, 100)).toBeNull()
-    expect(normalize(NaN, 0, 100)).toBeNull()
-    expect(normalize(1000, 100, 10000, false, true)).toBeCloseTo(50.5)
-    expect(() => normalize(1, 0, 0)).toThrow()
+describe('IDMI 2023: profiles, variants and missing evidence', () => {
+  it('accepts only the frozen 2023 profile schema and retains missing dimensions', () => {
+    const profile: IdmiProfile = { country: 'BRA', variant: 'gold_market', reference_year: 2023, method: 'IDMI9-candidate-2023-rail-access', score: null, lower: 8, upper: 80, complete: false, missing_dimensions: ['D2'], tax_dimension: 'separate_context_not_in_index', dimensions: { D1: { score: 50, lower: 50, upper: 50, complete: true, missing: [] }, D2: { score: null, lower: 0, upper: 100, complete: false, missing: ['basket'] } } }
+    expect(isIdmiProfilePackage([profile])).toBe(true)
+    expect(completedIdmiDimensions(profile)).toBe(1)
+    expect(isIdmiProfilePackage([{ ...profile, reference_year: 2024 }])).toBe(false)
   })
-  it('aggregates on the internal scale before conversion', () => {
-    expect(publicScore(geometric([1, 1]))).toBe(0)
-    expect(publicScore(geometric([100, 100]))).toBeCloseTo(100)
-    expect(geometric([1, 100])).toBeCloseTo(10)
-    expect(geometric([1, 100], [.65, .35])).toBeCloseTo(100 ** .35)
-    expect(geometric([100, null])).toBeNull()
-    expect(geometric([geometric([100, 100]), 100])).toBe(100)
-    expect(() => geometric([100], [0])).toThrow()
-  })
-  it('does not carry observations across years or publish incomplete totals', () => {
-    const data: Dataset = { schemaVersion: 1, id: 'life-undp', retrievedAt: '2026-01-01T00:00:00Z', sourceNote: '', provenance: [], series: [{ country: 'BRA', observations: [{ period: '2023', value: 85, status: 'published' }] }] }
-    expect(calculateIdmi([data], 'BRA', 2023).available).toBe(1)
-    expect(calculateIdmi([data], 'BRA', 2024).available).toBe(0)
-    expect(calculateIdmi([data], 'BRA', 2023, true).total).toBeNull()
-    expect(calculateIdmi([data], 'USA', 2023).available).toBe(0)
-  })
-  it('uses five infrastructure components and incorporates logistics into transport', () => {
-    const values: Record<string, number> = { 'roads-paved': 80, logistics: 4, 'water-safe': 90, 'sanitation-safe': 80, electricity: 95, 'clean-cooking': 90, 'electric-consumption': 2000, 'electric-losses': 10, 'waste-collection': 80, 'waste-controlled': 70, internet: 90, broadband: 25 }
-    const data = Object.entries(values).map(([id, value]): Dataset => ({ schemaVersion: 1, id, retrievedAt: '2026-01-01T00:00:00Z', sourceNote: '', provenance: [], series: [{ country: 'BRA', observations: [{ period: '2023', value, status: 'published' }] }] }))
-    const result = calculateIdmi(data, 'BRA', 2023)
-    expect(result.infrastructure.map(component => component.key)).toEqual(['T', 'A', 'E', 'W', 'D'])
-    expect(result.dimensions.find(dimension => dimension.key === 'I')?.score).not.toBeNull()
+
+  it('ships the frozen package without a fabricated Brazilian score', () => {
+    const packageData: unknown = JSON.parse(readFileSync(new URL('../../public/data/idmi-2023-profiles.json', import.meta.url), 'utf8'))
+    expect(isIdmiProfilePackage(packageData)).toBe(true)
+
+    const brazil = (packageData as IdmiProfile[]).find(profile => profile.country === 'BRA' && profile.variant === 'gold_market')
+    expect(brazil).toMatchObject({ complete: false, score: null, reference_year: 2023 })
   })
 })
 

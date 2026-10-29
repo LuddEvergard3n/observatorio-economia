@@ -58,4 +58,4 @@ Para recuperar, escolher um commit válido da branch `data`, examinar seus arqui
 - Países foram escolhidos como referências de escala, região e estrutura; não formam um grupo estatisticamente homogêneo.
 - Limite superior de consulta permanece em 2026 até alteração explícita do catálogo e interface.
 - Nenhuma política de geração de previsões próprias foi implementada.
-- DPF, Novo Caged e componentes incompletos do IDMI continuam identificados como pendentes. O painel não deve ser descrito como uma base historicamente completa.
+- DPF e Novo Caged continuam identificados como pendentes. O IDMI 2023 é um pacote experimental congelado, sem nota nacional completa ou ranking geral enquanto faltarem evidências. O painel não deve ser descrito como uma base historicamente completa.

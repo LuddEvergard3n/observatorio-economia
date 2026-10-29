@@ -1,56 +1,44 @@
-# IDMI 0.2 experimental
+# IDMI 2023 · integração experimental
 
-Índice de Desenvolvimento Material e Institucional, metodologia autoral fornecida pelo responsável pelo projeto. Não é indicador oficial do PNUD, Banco Mundial ou Fraser.
+Esta seção integra a edição congelada **IDMI9 2023 experimental** desenvolvida no projeto metodológico do autor. Ela substitui a antiga demonstração local de oito dimensões; as versões não são numericamente comparáveis.
 
-## Versão 0.2
+## O que o Observatório publica
 
-Infraestrutura combina cinco componentes por média geométrica: transporte e logística, água e saneamento, energia, resíduos e digital. Transporte combina rodovias pavimentadas e desempenho logístico. Portos e eficiência ferroviária permanecem no catálogo, mas não recebem média nacional artificial nesta versão. A mudança foi aprovada pelo responsável pelo projeto em 28/10/2026 e não torna comparáveis resultados calculados em versões diferentes.
+- Perfis de 2023 para as 12 economias do painel, nas variantes **ouro de mercado** e **onça de referência PPC**.
+- Nove dimensões indexadas: capacidade material, poder de compra, saúde, educação, segurança, habitação, infraestrutura, emprego e produtividade e eficiência administrativa não tributária.
+- A dimensão de qualidade tributária vivida (D9) em painel separado, sem peso na agregação enquanto não houver medidas comparáveis de pessoas e empresas.
+- Cobertura por dimensão e os componentes faltantes de cada perfil.
+- Limites matemáticos inferior e superior apenas como diagnóstico de lacunas.
 
-## Normalização
+O pacote vem de uma execução de 2023 com 217 economias e duas variantes monetárias. O painel restringe a consulta aos 12 países já cobertos pelo Observatório. O arquivo publicado é `public/data/idmi-2023-profiles.json`; ele é uma fotografia versionada, não uma saída da coleta horária.
 
-Pontuações internas `s` ficam em 1–100. Limites são fixos por versão, sem recalibração conforme o melhor país de cada ano:
+## Regra de publicação
+
+Nenhum país tem nota IDMI completa na edição integrada. O campo de pontuação central é nulo e o painel mostra `—` em vez de criar uma média das dimensões disponíveis.
+
+Uma nota requer evidência admissível nas nove dimensões indexadas. Dados ausentes permanecem desconhecidos, sem redistribuir pesos. Infraestrutura comprovadamente inexistente pode receber zero, mas somente quando a ausência é documentada; falta de fonte não é inexistência.
+
+Os limites exibidos não são notas, intervalos de confiança, previsão nem ranking:
 
 ```text
-positivo: s = 1 + 99 × clip((x − L)/(U − L), 0, 1)
-inverso:  s = 1 + 99 × clip((U − x)/(U − L), 0, 1)
-log: substituir x, L e U pelos respectivos logaritmos, após limitar x a [L,U]
-G = exp(sum(w_i × ln(s_i)) / sum(w_i))
-escala pública = 100 × (G − 1)/99
+limite inferior: desconhecidos = 0
+limite superior: desconhecidos = 100
 ```
 
-Ausência não vira pontuação mínima. Para notas agregadas, todos os componentes devem estar disponíveis, no mesmo ano e país. Não há interpolação, transporte de anos anteriores ou reponderação para excluir componentes faltantes.
+O método candidato agrega dimensões completas por:
 
-Resultados geométricos são limitados numericamente ao intervalo 1–100 para impedir que arredondamentos de ponto flutuante invalidem agregações subsequentes nos extremos da escala.
+```text
+IDMI9 = (Σ (1/9) × √D_i)²
+```
 
-## Oito dimensões, pesos iguais
+## Unidade monetária e poder de compra
 
-| Dimensão | Regra |
-| --- | --- |
-| W, riqueza | Patrimônio não humano por habitante, US$ 10 mil–1 milhão, log. Capital produzido, natural e ativos externos líquidos, excluindo capital humano. Exige base monetária compatível; componentes reais encadeados CWON não são aditivos. |
-| P, poder de compra | RNB por habitante PPC, 100–75.000 dólares internacionais, log; base HDR 2025/PPC 2021. |
-| S, saúde | Expectativa de vida 20–85 anos. |
-| E, educação | Média aritmética das pontuações de anos médios de estudo (0–15) e esperados (0–18). |
-| V, segurança | Média geométrica das escalas inversas log de homicídios (0,5–30) e mortes no trânsito (2–30), por 100 mil. |
-| H, habitação | População urbana em assentamentos precários, 0–50%, inversa. Não mede aluguel/renda. |
-| I, infraestrutura | Média geométrica dos cinco componentes abaixo. |
-| L, liberdade econômica | Fraser EFW 0–10, normalizado para 1–100. Dados e nota geral não publicados enquanto direitos estiverem pendentes. |
+Na variante principal, valores monetários anuais são expressos em onças troy equivalentes de ouro de mercado; para 2023 a execução registrada usa US$ 1.943 por onça. A variante PPC usa uma onça de referência convencional, derivada de dólares internacionais constantes de 2021. Elas não representam a mesma coisa e não devem ser misturadas numa comparação numérica.
 
-`IDMI = 100 × (((W×P×S×E×V×H×I×L)^(1/8)) − 1)/99`.
+Poder de compra não usa PIB médio nem renda mediana isolada. A definição exige a capacidade da pessoa mediana, ponderada por pessoas, de custear uma cesta de oito grupos no mesmo período, com custos e créditos específicos. Pobreza e insuficiência devem ser apresentadas separadamente.
 
-## Infraestrutura
+## Limitações explícitas
 
-Esta versão usa **cinco componentes**. A logística é incorporada ao transporte; portos e eficiência ferroviária continuam visíveis no catálogo, mas não recebem uma média nacional artificial.
+As principais lacunas para notas completas são cesta domiciliar e microdados harmonizados, vitimização, qualidade habitacional, acesso e confiabilidade de infraestrutura, experiência tributária e medidas administrativas comparáveis. A edição não imputa essas medidas nem usa proxies para preencher componentes obrigatórios.
 
-- Transporte e logística: média geométrica de rodovias pavimentadas (%) e desempenho logístico (LPI, 1–5).
-- Água e saneamento: água potável gerenciada com segurança (%) e saneamento seguro (%), pesos 65%/35%.
-- Energia: média geométrica de acesso à eletricidade (%), tecnologias limpas de cocção (%), consumo elétrico (500–8.000 kWh/habitante, log) e perdas (5–25%, inversa).
-- Resíduos: média geométrica da coleta regular e da gestão controlada (%), exigindo cobertura nacional comparável, sem extrapolar cidades selecionadas.
-- Digital: média geométrica de usuários de internet (%) e banda larga fixa (0–40 assinaturas por 100 habitantes).
-
-Percentuais positivos usam limites 0–100. Os cinco blocos têm pesos iguais na agregação. As faixas de energia e de banda larga são escolhas experimentais, não padrões universais validados. O software não deve publicar ranking como se essas decisões estivessem cientificamente estabelecidas.
-
-## Publicação e limites
-
-A interface publica os componentes calculáveis e sua cobertura. Não há ranking geral com dados incompletos. A análise formal de sensibilidade e a validação empírica do índice ainda não foram realizadas; antes de liberar ranking, devem avaliar pesos, limites, correlações entre dimensões e estabilidade das posições. Mudanças geram nova versão e recálculo separado, preservando a anterior.
-
-Implementação: `src/lib/idmi.ts`. Testes: `tests/web/calculations.test.ts`.
+As fontes, os anos efetivos, hashes e estados de cada observação pertencem ao projeto metodológico de origem. O Observatório preserva a autoria, a versão e a limitação da execução; não apresenta endosso de Banco Mundial, OIT, OMS, OCDE, ONU ou qualquer outra fonte.

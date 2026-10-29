@@ -12,7 +12,7 @@ O intervalo de consulta é 1988–2026, respeitando a cobertura de cada fonte. N
 - Catálogo por área, pesquisa, comparações entre 12 países e filtros compartilháveis por URL.
 - Gráficos Apache ECharts, tabela acessível, exportações CSV/JSON/PNG e temas claro/escuro.
 - Histórico de leis e mudanças metodológicas com documentos primários. Anotações não estabelecem causalidade.
-- IDMI autoral em seção separada: componentes calculáveis, fórmulas e limites explícitos. Nota total indisponível enquanto faltarem componentes ou direitos de publicação.
+- IDMI autoral em seção separada: perfis congelados da edição experimental de 2023, com nove dimensões indexadas, variantes monetárias e lacunas explícitas. Nenhuma nota geral é publicada sem evidência completa.
 - Coletor C# com preservação do último conjunto válido, hashes de respostas e registro de revisões.
 
 ## Requisitos e comandos

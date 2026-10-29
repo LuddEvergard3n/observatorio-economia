@@ -1,56 +1,37 @@
-import type { Dataset } from './types'
-
-export interface Dimension { key: string; name: string; score: number | null; inputs: { id: string; value: number | null; label: string }[]; note: string }
-export const idmiVersion = '0.2-experimental'
-
-/** Normalize to the internal 1–100 scale; absent values never become the minimum score. */
-export function normalize(value: number | null, lower: number, upper: number, inverse = false, logarithmic = false): number | null {
-  if (!(upper > lower) || (logarithmic && lower <= 0)) throw new Error('Invalid normalization bounds.')
-  if (value == null || !Number.isFinite(value)) return null
-  const bounded = Math.max(lower, Math.min(upper, value))
-  const fraction = logarithmic ? (Math.log(bounded) - Math.log(lower)) / (Math.log(upper) - Math.log(lower)) : (bounded - lower) / (upper - lower)
-  return 1 + 99 * (inverse ? 1 - fraction : fraction)
+export type IdmiVariant = 'gold_market' | 'ppp_reference'
+export interface IdmiDimension { score: number | null; lower: number; upper: number; complete: boolean; missing: string[] }
+export interface IdmiProfile {
+  country: string; variant: IdmiVariant; reference_year: number; method: string; score: number | null;
+  lower: number; upper: number; complete: boolean; missing_dimensions: string[];
+  tax_dimension: string; dimensions: Record<string, IdmiDimension>;
 }
 
-/** Require every component and positive weights; compute in log space for numerical stability. */
-export function geometric(values: (number | null)[], weights = values.map(() => 1)): number | null {
-  if (!values.length || weights.length !== values.length || weights.some(w => !Number.isFinite(w) || w <= 0)) throw new Error('Invalid weights.')
-  if (values.some(v => v == null || !Number.isFinite(v) || v < 1 || v > 100)) return null
-  const total = weights.reduce((sum, w) => sum + w, 0)
-  return Math.max(1, Math.min(100, Math.exp(values.reduce<number>((sum, value, index) => sum + weights[index] * Math.log(value!), 0) / total)))
+export const idmiVersion = 'IDMI9 2023 · experimental'
+export const idmiDimensions = [
+  { id: 'D1', name: 'Capacidade material', indexed: true, note: 'Produção por pessoa na variante monetária selecionada.' },
+  { id: 'D2', name: 'Poder de compra', indexed: true, note: 'Capacidade da pessoa mediana de custear uma cesta de oito grupos.' },
+  { id: 'D3', name: 'Saúde', indexed: true, note: 'Vida saudável, mortalidade infantil e materna.' },
+  { id: 'D4', name: 'Educação', indexed: true, note: 'Competências de estudantes e adultos, além de acesso e conclusão.' },
+  { id: 'D5', name: 'Segurança', indexed: true, note: 'Homicídios e vitimização; ausência de dado não é segurança.' },
+  { id: 'D6', name: 'Habitação', indexed: true, note: 'Espaço, condição física e conforto térmico.' },
+  { id: 'D7', name: 'Infraestrutura', indexed: true, note: 'Sistemas terrestres, aéreos, marítimos, energia, água e telecomunicações.' },
+  { id: 'D8', name: 'Emprego e produtividade', indexed: true, note: 'Subutilização do trabalho e produto por hora.' },
+  { id: 'D10', name: 'Eficiência administrativa', indexed: true, note: 'Tempo, custo e previsibilidade de serviços não tributários.' },
+  { id: 'D9', name: 'Qualidade tributária vivida', indexed: false, note: 'Painel separado, sem peso enquanto faltarem medidas observadas de pessoas e empresas.' },
+] as const
+
+/** Validate the frozen 2023 profile package before exposing it in the dashboard. */
+export function isIdmiProfilePackage(value: unknown): value is IdmiProfile[] {
+  return Array.isArray(value) && value.length > 0 && value.every(profile => {
+    if (!profile || typeof profile !== 'object') return false
+    const item = profile as Partial<IdmiProfile>
+    return typeof item.country === 'string' && (item.variant === 'gold_market' || item.variant === 'ppp_reference') &&
+      item.reference_year === 2023 && typeof item.complete === 'boolean' && Array.isArray(item.missing_dimensions) &&
+      item.dimensions != null && typeof item.dimensions === 'object'
+  })
 }
 
-/** Convert an internal score only after aggregation, including component display values. */
-export function publicScore(internal: number | null): number | null {
-  return internal == null ? null : Math.max(0, Math.min(100, 100 * (internal - 1) / 99))
-}
-
-/** Use exact reference years. No carry-forward, interpolation, or denominator substitution. */
-export function calculateIdmi(datasets: Dataset[], country: string, year: number, fraserPublicationAllowed = false) {
-  const raw = (id: string) => datasets.find(d => d.id === id)?.series.find(s => s.country === country)?.observations.find(p => p.period === String(year))?.value ?? null
-  const input = (id: string, label: string) => ({ id, label, value: raw(id) })
-  const pct = (id: string) => normalize(raw(id), 0, 100)
-  const energy = geometric([pct('electricity'), pct('clean-cooking'), normalize(raw('electric-consumption'), 500, 8000, false, true), normalize(raw('electric-losses'), 5, 25, true)])
-  const transport = geometric([pct('roads-paved'), normalize(raw('logistics'), 1, 5)])
-  const water = geometric([pct('water-safe'), pct('sanitation-safe')], [0.65, 0.35])
-  const waste = geometric([pct('waste-collection'), pct('waste-controlled')])
-  const digital = geometric([pct('internet'), normalize(raw('broadband'), 0, 40)])
-  const meanSchool = normalize(raw('schooling-mean'), 0, 15)
-  const expectedSchool = normalize(raw('schooling-expected'), 0, 18)
-  const infrastructure = [
-    { key: 'T', name: 'Transporte e logística', score: transport }, { key: 'A', name: 'Água e saneamento', score: water },
-    { key: 'E', name: 'Energia', score: energy },
-    { key: 'W', name: 'Resíduos', score: waste }, { key: 'D', name: 'Digital', score: digital },
-  ]
-  const dimensions: Dimension[] = [
-    { key: 'W', name: 'Riqueza', score: normalize(raw('wealth'), 10000, 1000000, false, true), inputs: [input('wealth', 'Riqueza não humana por habitante')], note: 'Patrimônio produzido, natural e ativos externos líquidos, sem capital humano. Não somar componentes reais encadeados.' },
-    { key: 'P', name: 'Poder de compra', score: normalize(raw('gni-ppp'), 100, 75000, false, true), inputs: [input('gni-ppp', 'RNB por habitante em PPC')], note: 'Limites de 100 a 75 mil dólares internacionais, em escala logarítmica. Base PPC vinculada à edição HDR 2025.' },
-    { key: 'S', name: 'Saúde', score: normalize(raw('life-undp'), 20, 85), inputs: [input('life-undp', 'Expectativa de vida')], note: 'Expectativa de vida ao nascer; limites de 20 a 85 anos.' },
-    { key: 'E', name: 'Educação', score: meanSchool == null || expectedSchool == null ? null : (meanSchool + expectedSchool) / 2, inputs: [input('schooling-mean', 'Média de anos de estudo'), input('schooling-expected', 'Anos esperados de escolaridade')], note: 'Média aritmética das pontuações normalizadas em 0–15 e 0–18 anos.' },
-    { key: 'V', name: 'Segurança', score: geometric([normalize(raw('homicides'), 0.5, 30, true, true), normalize(raw('road-deaths'), 2, 30, true, true)]), inputs: [input('homicides', 'Homicídios por 100 mil'), input('road-deaths', 'Mortes no trânsito por 100 mil')], note: 'Média geométrica de escalas logarítmicas inversas. Limites: 0,5–30 e 2–30 por 100 mil.' },
-    { key: 'H', name: 'Habitação', score: normalize(raw('slums'), 0, 50, true), inputs: [input('slums', 'População urbana em assentamentos precários')], note: 'Escala inversa de 0% a 50%. Mede precariedade urbana, não o custo do aluguel.' },
-    { key: 'I', name: 'Infraestrutura', score: geometric(infrastructure.map(c => c.score)), inputs: ['roads-paved','logistics','water-safe','sanitation-safe','electricity','clean-cooking','electric-consumption','electric-losses','waste-collection','waste-controlled','internet','broadband'].map(id => input(id, id)), note: 'Cinco componentes obrigatórios, combinados geometricamente. Transporte incorpora logística; portos e ferrovia não recebem uma agregação nacional artificial.' },
-    { key: 'L', name: 'Liberdade econômica', score: fraserPublicationAllowed ? normalize(raw('fraser'), 0, 10) : null, inputs: [input('fraser', 'Economic Freedom of the World')], note: 'Fraser Institute. Publicação condicionada à confirmação dos direitos de uso e redistribuição. Sem proxy substituta.' },
-  ]
-  return { dimensions, infrastructure, total: fraserPublicationAllowed ? publicScore(geometric(dimensions.map(d => d.score))) : null, available: dimensions.filter(d => d.score != null).length }
+/** Count only the nine dimensions that belong to the candidate index. */
+export function completedIdmiDimensions(profile: IdmiProfile): number {
+  return idmiDimensions.filter(dimension => dimension.indexed && profile.dimensions[dimension.id]?.complete).length
 }
