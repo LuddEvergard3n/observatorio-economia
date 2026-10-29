@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { eventsForIndicator } from '../../src/content/events'
-import { completedIdmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
+import { completedIdmiDimensions, idmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
 import { chartPoints, compound, csvCell, number } from '../../src/lib/format'
 
 describe('IDMI 2023: profiles, variants and missing evidence', () => {
@@ -18,6 +18,12 @@ describe('IDMI 2023: profiles, variants and missing evidence', () => {
 
     const brazil = (packageData as IdmiProfile[]).find(profile => profile.country === 'BRA' && profile.variant === 'gold_market')
     expect(brazil).toMatchObject({ complete: false, score: null, reference_year: 2023 })
+  })
+
+  it('uses the reference report terminology for candidate dimensions', () => {
+    expect(idmiDimensions.find(dimension => dimension.id === 'D5')?.name).toBe('Segurança letal')
+    expect(idmiDimensions.find(dimension => dimension.id === 'D7')?.name).toBe('Eletricidade e acesso ferroviário')
+    expect(idmiDimensions.find(dimension => dimension.id === 'D10')?.name).toBe('Serviços administrativos')
   })
 })
 

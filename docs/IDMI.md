@@ -2,10 +2,12 @@
 
 Esta seção integra a edição congelada **IDMI9 2023 experimental** desenvolvida no projeto metodológico do autor. Ela substitui a antiga demonstração local de oito dimensões; as versões não são numericamente comparáveis.
 
+O relatório executivo e metodológico de referência é publicado junto ao site em [`public/docs/IDMI-2023-Relatorio-Executivo-e-Metodologico.pdf`](../public/docs/IDMI-2023-Relatorio-Executivo-e-Metodologico.pdf). É um documento de 122 páginas, datado de 29 de outubro de 2026, que descreve a execução candidata de 2023; não transforma perfis parciais em ranking.
+
 ## O que o Observatório publica
 
 - Perfis de 2023 para as 12 economias do painel, nas variantes **ouro de mercado** e **onça de referência PPC**.
-- Nove dimensões indexadas: capacidade material, poder de compra, saúde, educação, segurança, habitação, infraestrutura, emprego e produtividade e eficiência administrativa não tributária.
+- Nove dimensões indexadas: capacidade material, poder de compra, saúde (HALE), educação (PISA/PIAAC), segurança letal, espaço habitacional, eletricidade e acesso ferroviário, trabalho e produtividade e serviços administrativos não tributários.
 - A dimensão de qualidade tributária vivida (D9) em painel separado, sem peso na agregação enquanto não houver medidas comparáveis de pessoas e empresas.
 - Cobertura por dimensão e os componentes faltantes de cada perfil.
 - Limites matemáticos inferior e superior apenas como diagnóstico de lacunas.
@@ -16,7 +18,7 @@ O pacote vem de uma execução de 2023 com 217 economias e duas variantes monet�
 
 Nenhum país tem nota IDMI completa na edição integrada. O campo de pontuação central é nulo e o painel mostra `—` em vez de criar uma média das dimensões disponíveis.
 
-Uma nota requer evidência admissível nas nove dimensões indexadas. Dados ausentes permanecem desconhecidos, sem redistribuir pesos. Infraestrutura comprovadamente inexistente pode receber zero, mas somente quando a ausência é documentada; falta de fonte não é inexistência.
+Uma nota requer evidência admissível nas nove dimensões indexadas. Dados ausentes permanecem desconhecidos, sem redistribuir pesos. Ausência comprovada de acesso ferroviário pode receber zero na D7, mas somente quando a ausência é documentada; falta de fonte não é inexistência.
 
 Os limites exibidos não são notas, intervalos de confiança, previsão nem ranking:
 
@@ -39,6 +41,6 @@ Poder de compra não usa PIB médio nem renda mediana isolada. A definição exi
 
 ## Limitações explícitas
 
-As principais lacunas para notas completas são cesta domiciliar e microdados harmonizados, vitimização, qualidade habitacional, acesso e confiabilidade de infraestrutura, experiência tributária e medidas administrativas comparáveis. A edição não imputa essas medidas nem usa proxies para preencher componentes obrigatórios.
+As principais lacunas para notas completas são cesta domiciliar e microdados harmonizados, medidas educacionais harmonizadas, superlotação comparável, acesso ferroviário, experiência tributária e serviços administrativos comparáveis. A edição não imputa essas medidas nem usa proxies para preencher componentes obrigatórios.
 
 As fontes, os anos efetivos, hashes e estados de cada observação pertencem ao projeto metodológico de origem. O Observatório preserva a autoria, a versão e a limitação da execução; não apresenta endosso de Banco Mundial, OIT, OMS, OCDE, ONU ou qualquer outra fonte.

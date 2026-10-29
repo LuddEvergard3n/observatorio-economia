@@ -10,13 +10,13 @@ export const idmiVersion = 'IDMI9 2023 · experimental'
 export const idmiDimensions = [
   { id: 'D1', name: 'Capacidade material', indexed: true, note: 'Produção por pessoa na variante monetária selecionada.' },
   { id: 'D2', name: 'Poder de compra', indexed: true, note: 'Capacidade da pessoa mediana de custear uma cesta de oito grupos.' },
-  { id: 'D3', name: 'Saúde', indexed: true, note: 'Vida saudável, mortalidade infantil e materna.' },
-  { id: 'D4', name: 'Educação', indexed: true, note: 'Competências de estudantes e adultos, além de acesso e conclusão.' },
-  { id: 'D5', name: 'Segurança', indexed: true, note: 'Homicídios e vitimização; ausência de dado não é segurança.' },
-  { id: 'D6', name: 'Habitação', indexed: true, note: 'Espaço, condição física e conforto térmico.' },
-  { id: 'D7', name: 'Infraestrutura', indexed: true, note: 'Sistemas terrestres, aéreos, marítimos, energia, água e telecomunicações.' },
-  { id: 'D8', name: 'Emprego e produtividade', indexed: true, note: 'Subutilização do trabalho e produto por hora.' },
-  { id: 'D10', name: 'Eficiência administrativa', indexed: true, note: 'Tempo, custo e previsibilidade de serviços não tributários.' },
+  { id: 'D3', name: 'Saúde', indexed: true, note: 'Expectativa de vida saudável (HALE); ano efetivo de 2021.' },
+  { id: 'D4', name: 'Educação', indexed: true, note: 'Leitura no PISA e alfabetização no PIAAC, com pesos internos iguais.' },
+  { id: 'D5', name: 'Segurança letal', indexed: true, note: 'Taxa de homicídios intencionais; ausência de dado não é segurança.' },
+  { id: 'D6', name: 'Espaço habitacional', indexed: true, note: 'Superlotação pela regra de quartos do Eurostat.' },
+  { id: 'D7', name: 'Eletricidade e acesso ferroviário', indexed: true, note: 'Cobertura elétrica anual e acesso a estação ferroviária em serviço.' },
+  { id: 'D8', name: 'Trabalho e produtividade', indexed: true, note: 'Subutilização do trabalho (LU4) e produto por hora, com pesos internos iguais.' },
+  { id: 'D10', name: 'Serviços administrativos', indexed: true, note: 'Satisfação de usuários recentes com serviços administrativos não tributários.' },
   { id: 'D9', name: 'Qualidade tributária vivida', indexed: false, note: 'Painel separado, sem peso enquanto faltarem medidas observadas de pessoas e empresas.' },
 ] as const
 
