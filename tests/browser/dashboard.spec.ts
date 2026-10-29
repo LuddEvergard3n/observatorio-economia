@@ -10,6 +10,8 @@ test('loads real snapshots, charts, methodology and CSV without provider request
   await page.screenshot({ path: '.cache/desktop.png', fullPage: true })
   await page.goto('/#indicator/ipca?from=2020&to=2026')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('IPCA')
+  await expect(page.locator('.chart-reading')).toContainText('Leitura rápida')
+  await expect(page.locator('.chart-reading')).toContainText('Brasil')
   await expect(page.locator('.chart-context')).toContainText('Eventos documentados no período')
   await expect(page.locator('.chart-context').getByRole('link', { name: /IPCA · atualização dos pesos/ })).toHaveAttribute('href', '#history?event=ipca2020')
   await page.getByRole('tab', { name: 'Dados da série' }).click()
