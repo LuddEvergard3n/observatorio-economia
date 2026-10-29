@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Sparkline } from '@/components/Sparkline'
 import { SeriesPanel } from '@/components/SeriesPanel'
 import { number, period } from '@/lib/format'
+import { useTranslation } from '@/lib/i18n'
 import { events } from '@/content/events'
 import type { Manifest } from '@/lib/types'
 
 /** Surface the latest national observations while keeping their reference periods prominent. */
 export function Overview({ manifest, dark }: { manifest: Manifest; dark: boolean }) {
+  const { t } = useTranslation()
   const [windowYears, setWindowYears] = useState(10)
   const [metric, setMetric] = useState('gdp-growth')
   const ids = ['gdp-quarter', 'ipca', 'selic', 'unemployment', 'usd', 'debt-gross']
@@ -17,7 +19,7 @@ export function Overview({ manifest, dark }: { manifest: Manifest; dark: boolean
   const comparator = manifest.indicators.find(e => e.definition.id === 'gdp-growth')!
   const international = ['BRA', 'USA', 'CHL', 'ARG', 'MEX', 'CHN'].map(id => ({ country: manifest.countries.find(c => c.id === id)!, summary: comparator.summaries[id] }))
   return <>
-    <div className="page-intro"><div><div className="eyebrow"><span className="live-dot" /> OBSERVATÓRIO ECONÔMICO · 1988—2026</div><h1>A economia, em perspectiva.</h1><p>Os números do Brasil, seu contexto e o mundo ao redor.</p></div><a className="button-link" href="#compare"><Globe2 size={16} /> Comparar países <ArrowUpRight size={15} /></a></div>
+    <div className="page-intro"><div><div className="eyebrow"><span className="live-dot" /> OBSERVATÓRIO ECONÔMICO · 1988—2026</div><h1>{t('overview.title')}</h1><p>{t('overview.description')}</p></div><a className="button-link" href="#compare"><Globe2 size={16} /> {t('overview.compare')} <ArrowUpRight size={15} /></a></div>
     <div className="kpi-grid">{ids.map(id => {
       const e = manifest.indicators.find(item => item.definition.id === id)!
       const s = e.summaries.BRA

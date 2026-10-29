@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test('loads real snapshots, charts, methodology and CSV without provider requests', async ({ page }) => {
   const errors: string[] = [], external: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:5173') && !request.url().startsWith('data:')) external.push(request.url()) })
+  page.on('request', request => { if (/^https?:/.test(request.url()) && !request.url().startsWith('http://127.0.0.1:5173')) external.push(request.url()) })
   await page.goto('/')
   await expect(page.locator('.kpi-card').first()).toBeVisible()
   await expect(page.locator('canvas').first()).toBeVisible()
@@ -49,4 +49,16 @@ test('mobile pages fit the viewport and dark theme persists', async ({ page }) =
   await expect(page.getByRole('complementary', { name: 'Navegação principal' }).getByRole('link', { name: 'Comparar países', exact: true })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(page.getByRole('button', { name: 'Abrir menu' })).toHaveAttribute('aria-expanded', 'false')
+})
+
+test('language selector persists a supported interface locale without provider requests', async ({ page }) => {
+  await page.goto('/')
+  const selector = page.locator('.language-select select')
+  await expect(selector.locator('option')).toHaveCount(10)
+  await selector.selectOption('en')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.locator('.sidebar').getByRole('link', { name: 'Compare countries', exact: true })).toBeVisible()
+  await selector.selectOption('ru')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru')
+  await expect(page.locator('.sidebar').getByRole('link', { name: 'Сравнить страны', exact: true })).toBeVisible()
 })

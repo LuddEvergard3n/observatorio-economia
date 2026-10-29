@@ -4,24 +4,33 @@ export const categories = { activity: 'Atividade econômica', prices: 'Preços, 
 export const frequencies: Record<string, string> = { annual: 'Anual', monthly: 'Mensal', daily: 'Diária', quarterly: 'Trimestral', 'rolling-quarter': 'Trimestre móvel' }
 export const conditions: Record<string, string> = { published: 'Publicado pela fonte', estimate: 'Estimativa / base mista', modeled: 'Estimativa modelada' }
 
+const localeTags: Record<string, string> = { 'pt-BR':'pt-BR', en:'en-US', es:'es-ES', de:'de-DE', fr:'fr-FR', ru:'ru-RU', 'zh-CN':'zh-CN', ja:'ja-JP', ko:'ko-KR', pl:'pl-PL' }
+const localeText: Record<string, { noObservation: string; rollingQuarter: string; quarter: string }> = {
+  'pt-BR': { noObservation:'Sem observação', rollingQuarter:'Tri. móvel até', quarter:'º tri.' }, en:{ noObservation:'No observation', rollingQuarter:'Rolling quarter through', quarter:'Q' }, es:{ noObservation:'Sin observación', rollingQuarter:'Trimestre móvil hasta', quarter:'T' }, de:{ noObservation:'Keine Beobachtung', rollingQuarter:'Gleitendes Quartal bis', quarter:'Q' }, fr:{ noObservation:'Aucune observation', rollingQuarter:'Trimestre mobile jusqu’à', quarter:'T' }, ru:{ noObservation:'Нет наблюдения', rollingQuarter:'Скользящий квартал по', quarter:'кв.' }, 'zh-CN':{ noObservation:'无观测值', rollingQuarter:'滚动季度截至', quarter:'季度' }, ja:{ noObservation:'観測値なし', rollingQuarter:'移動四半期（終了）', quarter:'第四半期' }, ko:{ noObservation:'관측치 없음', rollingQuarter:'이동 분기 기준', quarter:'분기' }, pl:{ noObservation:'Brak obserwacji', rollingQuarter:'Kwartał kroczący do', quarter:'kw.' },
+}
+
+function currentLocale(): string { return typeof document === 'undefined' ? 'pt-BR' : document.documentElement.lang || 'pt-BR' }
+function intlLocale(): string { return localeTags[currentLocale()] ?? 'pt-BR' }
+
 /** Format a measured value, preserving the difference between zero and absence. */
 export function number(value: number | null | undefined, digits = 2, compact = false): string {
   if (value == null || !Number.isFinite(value)) return '—'
-  return new Intl.NumberFormat('pt-BR', { maximumFractionDigits: digits, minimumFractionDigits: compact ? 0 : digits, notation: compact ? 'compact' : 'standard' }).format(value)
+  return new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: digits, minimumFractionDigits: compact ? 0 : digits, notation: compact ? 'compact' : 'standard' }).format(value)
 }
 
 /** Format an observation's reference period independently of the retrieval date. */
 export function period(value?: string | null, frequency?: string): string {
-  if (!value) return 'Sem observação'
+  const text = localeText[currentLocale()] ?? localeText['pt-BR']
+  if (!value) return text.noObservation
   if (value.length === 4) return value
-  if (value.includes('-Q')) return `${value.slice(-1)}º tri. ${value.slice(0, 4)}`
+  if (value.includes('-Q')) return currentLocale() === 'en' ? `${text.quarter}${value.slice(-1)} ${value.slice(0, 4)}` : `${value.slice(-1)}${text.quarter} ${value.slice(0, 4)}`
   const date = new Date(`${value.length === 7 ? value + '-01' : value}T12:00:00Z`)
-  const formatted = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: 'numeric', ...(value.length === 10 ? { day: '2-digit' as const } : {}), timeZone: 'UTC' }).format(date)
-  return frequency === 'rolling-quarter' ? `Tri. móvel até ${formatted}` : formatted
+  const formatted = new Intl.DateTimeFormat(intlLocale(), { month: 'short', year: 'numeric', ...(value.length === 10 ? { day: '2-digit' as const } : {}), timeZone: 'UTC' }).format(date)
+  return frequency === 'rolling-quarter' ? `${text.rollingQuarter} ${formatted}` : formatted
 }
 
 export function timestamp(value: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(value))
+  return new Intl.DateTimeFormat(intlLocale(), { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(value))
 }
 
 /** Convert a series period into an unambiguous UTC chart coordinate. */

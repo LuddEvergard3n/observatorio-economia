@@ -11,6 +11,7 @@ O intervalo de consulta é 1988–2026, respeitando a cobertura de cada fonte. N
 - Panorama com PIB, IPCA, Selic, desemprego, dólar PTAX e dívida bruta.
 - Catálogo por área, pesquisa, comparações entre 12 países e filtros compartilháveis por URL.
 - Gráficos Apache ECharts, tabela acessível, exportações CSV/JSON/PNG e temas claro/escuro.
+- Interface em português, inglês, espanhol, alemão, francês, russo, chinês simplificado, japonês, coreano e polonês. A preferência fica apenas no navegador; nomes oficiais de fontes, séries e documentos preservam seu idioma publicado.
 - Histórico de leis e mudanças metodológicas com documentos primários. Anotações não estabelecem causalidade.
 - IDMI autoral em seção separada: perfis congelados da edição experimental de 2023, com nove dimensões indexadas, variantes monetárias e lacunas explícitas. Nenhuma nota geral é publicada sem evidência completa.
 - Coletor C# com preservação do último conjunto válido, hashes de respostas e registro de revisões.

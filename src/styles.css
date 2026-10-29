@@ -55,6 +55,8 @@ h3 { font-size:15px; font-weight:600; }
 .workspace { margin-left:232px; min-width:0; }
 .topbar { height:66px; border-bottom:1px solid var(--border); background:var(--card); display:flex; justify-content:space-between; align-items:center; padding:0 36px; gap:20px; }
 .breadcrumb,.topbar-actions { display:flex; align-items:center; gap:14px; }
+.language-select { height:30px; display:inline-flex; align-items:center; gap:5px; padding:0 7px; border:1px solid var(--border); border-radius:6px; color:var(--muted); background:var(--card); }
+.language-select select { appearance:none; border:0; outline:0; background:transparent; color:var(--foreground); font:inherit; font-size:10px; cursor:pointer; max-width:84px; }
 .breadcrumb { font-size:11px; color:var(--muted); }
 .breadcrumb strong { font-weight:500; color:var(--foreground); }
 .topbar-search { display:flex; gap:8px; align-items:center; padding-right:15px; color:var(--muted); }
