@@ -16,3 +16,4 @@ public sealed record Entry(Indicator Definition, string Status, string LastAttem
 public sealed record Manifest(int SchemaVersion, string GeneratedAt, string AsOf, int StartYear, int EndYear,
     Country[] Countries, Entry[] Indicators, int ObservationCount, int FailedSources);
 public sealed record Revision(string Indicator, string Country, string Period, double? Previous, double? Current, string DetectedAt);
+public sealed record LocalDataset(int SchemaVersion, string SourceUrl, string SourceSha256, string SourceNote, Dictionary<string, Series[]> Metrics);

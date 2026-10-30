@@ -373,6 +373,34 @@
       "statusDefault": "published"
     },
     {
+      "id": "sewage-network",
+      "name": "Atendimento por rede coletora de esgoto",
+      "code": "sinisa-esgoto-2023.json#network",
+      "category": "infrastructure",
+      "unit": "% da população total",
+      "frequency": "annual",
+      "provider": "local",
+      "source": "Ministério das Cidades · SINISA",
+      "sourceUrl": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/sinisa/resultados-sinisa/resultados-sinisa",
+      "description": "População total atendida por rede coletora de esgoto no Brasil.",
+      "notes": "Série brasileira com uma observação consolidada de 2023. Não substituir por saneamento gerenciado com segurança, pois população, serviço e denominador são diferentes.",
+      "statusDefault": "published"
+    },
+    {
+      "id": "sewage-network-treatment",
+      "name": "Domicílios com coleta e tratamento de esgoto",
+      "code": "sinisa-esgoto-2023.json#network-treatment",
+      "category": "infrastructure",
+      "unit": "% dos domicílios totais",
+      "frequency": "annual",
+      "provider": "local",
+      "source": "Ministério das Cidades · SINISA",
+      "sourceUrl": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/sinisa/resultados-sinisa/resultados-sinisa",
+      "description": "Domicílios totais atendidos por coleta e tratamento de esgoto no Brasil.",
+      "notes": "Série brasileira com uma observação consolidada de 2023. Não equivale à população atendida por rede coletora nem ao indicador internacional de saneamento gerenciado com segurança.",
+      "statusDefault": "published"
+    },
+    {
       "id": "electricity",
       "name": "Acesso à eletricidade",
       "code": "EG.ELC.ACCS.ZS",

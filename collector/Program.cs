@@ -17,7 +17,7 @@ var filter = Argument("--only", "").Split(',', StringSplitOptions.RemoveEmptyEnt
 Directory.CreateDirectory(output);
 Directory.CreateDirectory(Path.Combine(output, "series"));
 using var http = new HttpStore(Path.Combine(root, ".cache", "http"), Path.Combine(root, ".cache", "raw"));
-var providers = new Providers(http, catalog, asOf, output);
+var providers = new Providers(http, catalog, asOf, output, catalogPath);
 var entries = new List<Entry>();
 var revisions = new List<Revision>();
 var revisionPath = Path.Combine(output, "revisions.json");

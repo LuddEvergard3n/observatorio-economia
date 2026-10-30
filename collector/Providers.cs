@@ -4,7 +4,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace Observatory;
 
-public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, string output)
+public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, string output, string catalogPath)
 {
     private const string UndpUrl = "https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Composite_indices_complete_time_series.csv";
     private const string FederalDebtUrl = "https://www.tesourotransparente.gov.br/ckan/dataset/0998f610-bc25-4ce3-b32c-a873447500c2/resource/b6280ed3-ef7e-4569-954a-bded97c2c8a1/download/estoquedpf.csv";
@@ -15,10 +15,31 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
     {
         var urls = new List<string>();
         string? note = null;
+        Provenance[]? provenance = null;
         async Task<string> Read(string url) { urls.Add(url); return await http.Get(url); }
         var series = new List<Series>();
         switch (definition.Provider)
         {
+            case "local":
+            {
+                var selector = definition.Code.Split('#', 2);
+                if (selector.Length != 2 || string.IsNullOrWhiteSpace(selector[0]) || string.IsNullOrWhiteSpace(selector[1]))
+                    throw new InvalidDataException("Local source code must identify a fixture and metric.");
+                var sourceDirectory = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(catalogPath) ?? throw new InvalidDataException("Missing catalog directory."), "local"));
+                var fixturePath = Path.GetFullPath(Path.Combine(sourceDirectory, selector[0]));
+                if (!fixturePath.StartsWith(sourceDirectory + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                    throw new InvalidDataException("Local source escapes the catalog directory.");
+                var local = JsonSerializer.Deserialize<LocalDataset>(await File.ReadAllTextAsync(fixturePath), new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                    ?? throw new InvalidDataException("Invalid local source fixture.");
+                if (local.SchemaVersion != 1 || local.SourceSha256.Length != 64 || !local.SourceSha256.All(Uri.IsHexDigit))
+                    throw new InvalidDataException("Invalid local source metadata.");
+                if (!local.Metrics.TryGetValue(selector[1], out var localSeries) || localSeries.Length == 0)
+                    throw new InvalidDataException("Local source metric is unavailable.");
+                series.AddRange(localSeries);
+                note = local.SourceNote;
+                provenance = [new Provenance(local.SourceUrl, local.SourceSha256.ToLowerInvariant(), null, null)];
+                break;
+            }
             case "waste":
             {
                 const string url = "https://datacatalogfiles.worldbank.org/ddh-published/0039597/DR0095901/What_a_Waste_3.0_COUNTRY_Dataset_%26_Codebook.xlsx";
@@ -162,7 +183,7 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
             default: throw new InvalidOperationException("Provider not implemented.");
         }
         if (series.Count == 0) throw new InvalidDataException("Provider returned no selected countries.");
-        return new Dataset(1, definition.Id, DateTimeOffset.UtcNow.ToString("O"), note, http.Evidence(urls), DataRules.Validate(series, countries, asOf, catalog.StartYear));
+        return new Dataset(1, definition.Id, DateTimeOffset.UtcNow.ToString("O"), note, provenance ?? http.Evidence(urls), DataRules.Validate(series, countries, asOf, catalog.StartYear));
     }
 
     private static double? Number(JsonElement value) => value.ValueKind == JsonValueKind.Null ? null : value.ValueKind == JsonValueKind.Number ? value.GetDouble() : DataRules.ParseNumber(value.GetString());
