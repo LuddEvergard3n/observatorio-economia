@@ -27,6 +27,9 @@ Check(Math.Abs(deflated[0].Value!.Value - 110) < 1e-8 && Math.Abs(deflated[2].Va
 Check(DataRules.Deflate([Point("2025-01", 100)], [], "2025-02")[0].Value is null, "No imputed inflation");
 var localSource = new LocalDataset(1, "https://example.org/source", new string('a', 64), "fixture", new Dictionary<string, Series[]> { ["network"] = [new("BRA", [Point("2023", 59.7)])] });
 Check(localSource.Metrics["network"].Single().Observations.Single().Value == 59.7, "Retain local national source value without imputation");
+var cagedFixture = JsonSerializer.Deserialize<LocalDataset>(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "catalog", "local", "novo-caged-2024-2026.json")), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+var caged = cagedFixture.Metrics["net-balance"].Single().Observations;
+Check(caged.Length == 26 && caged.Single(p => p.Period == "2026-08").Value == 165827 && caged.Single(p => p.Period == "2025-12").Value == -618164, "Retain audited Novo Caged monthly balances without aggregation");
 var debtCsv = "Titulo/Contrato;Vencimento do Titulo/Contrato;Valor do Estoque;Quantidade do Estoque;Mes do Estoque;Classe da Carteira;Tipo de Divida\nA;01/01/2030;1000000,00;1;08/2026;Mercado;Dívida Interna\nB;01/01/2030;500000,00;1;08/2026;Mercado;Dívida Externa\nC;01/01/2030;9000000,00;1;08/2026;Banco Central;Dívida Interna";
 var debt = DataRules.AggregateFederalDebt(new StringReader(debtCsv), "published");
 Check(debt.Length == 1 && debt[0].Period == "2026-08" && debt[0].Value == 1.5, "Aggregate DPF market stock without BCB portfolio");
