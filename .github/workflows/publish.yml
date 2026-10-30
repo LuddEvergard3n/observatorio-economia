@@ -75,7 +75,8 @@ jobs:
       - name: Preserve the data branch
         shell: bash
         run: |
-          if git show-ref --verify --quiet refs/remotes/origin/data; then
+          if git ls-remote --exit-code --heads origin data; then
+            git fetch origin data
             git branch data origin/data
           else
             git branch data HEAD
