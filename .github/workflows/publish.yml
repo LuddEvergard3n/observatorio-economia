@@ -39,7 +39,7 @@ jobs:
       - name: Restore latest published data
         shell: bash
         run: |
-          if git ls-remote --exit-code --heads origin data; then
+          if [ "${{ github.event_name }}" != "push" ] && git ls-remote --exit-code --heads origin data; then
             git fetch origin data
             git archive origin/data public/data | tar -x
           fi
