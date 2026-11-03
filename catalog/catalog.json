@@ -87,7 +87,7 @@
       "provider": "worldbank",
       "source": "Banco Mundial · WDI",
       "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG",
-      "description": "Variação anual do volume de bens e serviços produzidos, descontadas as mudanças de preços.",
+      "description": "Mostra quanto a produção do país aumentou ou diminuiu em relação ao ano anterior, sem contar a inflação.",
       "notes": "A fonte internacional pode republicar ou harmonizar estatísticas nacionais. Consulte a origem primária nos metadados.",
       "statusDefault": "published"
     },
@@ -101,7 +101,7 @@
       "provider": "worldbank",
       "source": "Banco Mundial · WDI",
       "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD",
-      "description": "Produto interno bruto a preços correntes, convertido pela taxa de câmbio.",
+      "description": "É o valor, em dólares do ano, de todos os bens e serviços finais produzidos no país. Pode mudar por produção, preços ou câmbio.",
       "notes": "Variações em dólares combinam produção, inflação e câmbio. Não representam crescimento real.",
       "statusDefault": "published"
     },
@@ -115,7 +115,7 @@
       "provider": "worldbank",
       "source": "Banco Mundial · WDI",
       "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.MKTP.KD",
-      "description": "PIB em dólares constantes de 2015. Mede o volume de produção em uma base de preços fixa.",
+      "description": "Mostra o tamanho da produção sem deixar a inflação criar uma falsa impressão de crescimento. Usa os preços de um mesmo ano-base.",
       "notes": "A fonte internacional pode republicar ou harmonizar estatísticas nacionais. Consulte a origem primária nos metadados.",
       "statusDefault": "published"
     },
@@ -129,7 +129,7 @@
       "provider": "worldbank",
       "source": "Banco Mundial · WDI",
       "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.PCAP.KD",
-      "description": "Produto em preços constantes dividido pela população. Não mede a distribuição da renda.",
+      "description": "Divide o PIB real pelo número de habitantes. É uma média: não mostra quanto cada pessoa recebe nem como a renda é distribuída.",
       "notes": "A fonte internacional pode republicar ou harmonizar estatísticas nacionais. Consulte a origem primária nos metadados.",
       "statusDefault": "published"
     },
@@ -143,7 +143,7 @@
       "provider": "worldbank",
       "source": "Banco Mundial · WDI",
       "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD",
-      "description": "Produção por habitante ajustada pelas diferenças de preços entre países.",
+      "description": "Compara a produção média por pessoa levando em conta que o mesmo dinheiro compra quantidades diferentes em cada país.",
       "notes": "PPC não é uma taxa de câmbio negociável. Mudanças de rodada do ICP podem revisar toda a série.",
       "statusDefault": "published"
     },

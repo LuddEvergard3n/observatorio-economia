@@ -2,6 +2,8 @@
 
 O catálogo executável é `catalog/catalog.json`. Cada entrada contém código, unidade, frequência, provedor, URL, definição, transformação e observações. O manifesto publicado registra cobertura efetiva por país; o intervalo entre primeiro e último ponto não garante ausência de lacunas internas.
 
+Cada página de detalhe reaproveita essa definição em um bloco de leitura simples: o que o indicador mede, como ler unidade e frequência e qual cuidado evita interpretações erradas. A ressalva técnica continua no mesmo catálogo para que explicação e coleta não divirjam.
+
 | Grupo | Origem e integração | Limites |
 | --- | --- | --- |
 | Atividade, população, infraestrutura e comparações | [Banco Mundial WDI API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation) | Metadados de cada série identificam produtores nacionais e internacionais; cobertura irregular. Não preencher lacunas. |
