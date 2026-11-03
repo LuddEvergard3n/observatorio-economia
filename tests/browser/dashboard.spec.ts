@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test('loads real snapshots, charts, methodology and CSV without provider requests', async ({ page }) => {
   const errors: string[] = [], external: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  page.on('request', request => { if (/^https?:/.test(request.url()) && !request.url().startsWith('http://127.0.0.1:5173')) external.push(request.url()) })
+  page.on('request', request => { if (/^https?:/.test(request.url()) && new URL(request.url()).hostname !== '127.0.0.1') external.push(request.url()) })
   await page.goto('/')
   await expect(page.locator('.kpi-card').first()).toBeVisible()
   await expect(page.locator('canvas').first()).toBeVisible()
@@ -84,4 +84,10 @@ test('language selector persists a supported interface locale without provider r
   await expect(page.getByText('Исторический ряд, документация и данные для скачивания.')).toBeVisible()
   await expect(page.getByText('Реальный ВВП · годовое изменение', { exact: true }).last()).toBeVisible()
   await expect(page.getByText('Бразилия', { exact: true }).first()).toBeVisible()
+  await page.goto('/#labor')
+  await expect(page.getByRole('heading', { name: 'Уровень безработицы', exact: true })).toBeVisible()
+  await expect(page.getByText('Месячное сальдо формальных трудовых отношений в Бразилии: наймы минус увольнения, без сезонной корректировки.', { exact: true })).toBeVisible()
+  await page.goto('/#indicator/formal-jobs?from=2026&to=2026')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Формальная занятость · чистое сальдо договоров')
+  await expect(page.locator('.source-line')).toContainText('Источник:')
 })
