@@ -13,7 +13,7 @@ const definition: Indicator = { id: 'purchasing-power-year', name: 'Variação a
 
 /** Present audited tax creations separately from increases, replacements and aggregate household purchasing power. */
 export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolean }) {
-  const { t } = useTranslation()
+  const { locale, t } = useTranslation()
   const { data, error, loading } = useDataset('ipca-monthly', manifest.generatedAt)
   const purchasingPower = useMemo<Dataset | null>(() => data ? { schemaVersion: 1, id: definition.id, retrievedAt: data.retrievedAt, sourceNote: definition.notes, provenance: data.provenance, series: [{ country: 'BRA', observations: annualPurchasingPower(data.series.find(series => series.country === 'BRA')?.observations ?? []) }] } : null, [data])
   const earlyYears = purchasingPower?.series[0].observations.filter(point => Number(point.period) < 1995) ?? []
@@ -36,11 +36,16 @@ export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolea
     </section>
 
     <div className="section-title tax-ledger-title"><span>{t('taxes.ledgerEyebrow')}</span><h2>{t('taxes.ledgerTitle')}</h2><p>{t('taxes.ledgerDescription')}</p></div>
-    <div className="tax-ledger">{taxChanges.map(item => <article className="panel tax-card" key={`${item.year}-${item.name}`}>
+    <div className="tax-ledger">{taxChanges.map(item => {
+      const translated = locale !== 'pt-BR'
+      const proposer = !translated ? item.proposer : item.year === 2002 ? 'Álvaro Dias; Juquinha' : item.year === 2023 ? `Baleia Rossi; ${t('taxes.executive')}` : t('taxes.executive')
+      const rates: Record<number, string> = { 1991:'2% · 1991', 1993:'0.25%', 1996:'0.20% → 0.38%', 2000:'10%', 2001:t('taxes.variableRate'), 2002:t('taxes.localLaw'), 2003:t('taxes.constitutionalThreshold'), 2004:'1.65% + 7.6% · 2004', 2023:'2026–2033', 2024:t('taxes.upTo15') }
+      const costs: Record<string, string> = { 'Sem total isolado':t('taxes.noSeparateTotal'), 'Repasse indireto':t('taxes.indirect'), 'Varia por município':t('taxes.variesLocally'), 'Sem total nacional isolado':t('taxes.noSeparateTotal'), 'Embutido na importação':t('taxes.inImports'), 'Ainda não observado integralmente':t('taxes.notFullyObserved'), 'Não recai diretamente sobre famílias':t('taxes.notDirectHousehold') }
+      return <article className="panel tax-card" key={`${item.year}-${item.name}`}>
       <div className="tax-card-head"><span className="tax-year">{item.year}</span><div><h3>{item.name}</h3><Badge variant="outline">{t(`taxes.kind.${item.kind}`)}</Badge></div><ReceiptText size={18}/></div>
-      <dl><div><dt>{t('taxes.proposal')}</dt><dd>{item.proposal}</dd></div><div><dt>{t('taxes.proposer')}</dt><dd>{item.proposer}</dd></div><div><dt>{t('taxes.president')}</dt><dd>{item.president}</dd></div><div><dt>{t('taxes.law')}</dt><dd>{item.law}</dd></div><div><dt>{t('taxes.rate')}</dt><dd>{item.rate}</dd></div></dl>
-      <div className="tax-impact"><Landmark size={15}/><div><span>{t('taxes.observedCost')}</span><strong>{item.observedCost}</strong><small>{item.costReference}</small></div></div>
+      <dl><div><dt>{t('taxes.proposal')}</dt><dd>{item.proposal}</dd></div><div><dt>{t('taxes.proposer')}</dt><dd>{proposer}</dd></div><div><dt>{t('taxes.president')}</dt><dd>{item.president}</dd></div><div><dt>{t('taxes.law')}</dt><dd>{item.law}</dd></div><div><dt>{t('taxes.rate')}</dt><dd>{translated ? rates[item.year] : item.rate}</dd></div></dl>
+      <div className="tax-impact"><Landmark size={15}/><div><span>{t('taxes.observedCost')}</span><strong>{translated ? costs[item.observedCost] ?? item.observedCost : item.observedCost}</strong><small>{translated ? t('taxes.costCaution') : item.costReference}</small></div></div>
       <a className="text-link" href={item.url} target="_blank" rel="noreferrer">{t('series.primarySource')} <ExternalLink size={12}/></a>
-    </article>)}</div>
+    </article>})}</div>
   </>
 }

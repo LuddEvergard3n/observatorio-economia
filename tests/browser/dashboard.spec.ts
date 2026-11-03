@@ -94,6 +94,8 @@ test('language selector persists a supported interface locale without provider r
   await expect(page.locator('.sidebar').getByRole('link', { name: 'Compare countries', exact: true })).toBeVisible()
   await page.goto('/#taxes')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What was created and how much it weighed.')
+  await expect(page.locator('.tax-card').first()).toContainText('Executive branch')
+  await expect(page.locator('.tax-impact').filter({ hasText: 'No separate total' }).first()).toBeVisible()
   await page.goto('/#indicator/gdp-usd')
   await expect(page.getByRole('heading', { name: 'Understand this indicator', exact: true })).toBeVisible()
   await expect(page.getByText('The current-dollar value of all final goods and services produced in the country.', { exact: false }).first()).toBeVisible()
