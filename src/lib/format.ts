@@ -62,6 +62,21 @@ export function compound(rates: (number | null)[]): number | null {
   return (rates.reduce<number>((factor, rate) => factor * (1 + rate! / 100), 1) - 1) * 100
 }
 
+/** Convert monthly inflation into the annual change in what the same nominal amount can buy. */
+export function annualPurchasingPower(points: Observation[], from = 1991): Observation[] {
+  const byYear = new Map<number, (number | null)[]>()
+  for (const point of points) {
+    const year = Number(point.period.slice(0, 4))
+    if (year < from) continue
+    if (!byYear.has(year)) byYear.set(year, [])
+    byYear.get(year)!.push(point.value)
+  }
+  return [...byYear].sort(([a], [b]) => a - b).map(([year, rates]) => {
+    const inflation = rates.length === 12 ? compound(rates) : null
+    return { period: String(year), value: inflation == null ? null : (1 / (1 + inflation / 100) - 1) * 100, status: 'derived' }
+  })
+}
+
 /** Escape both CSV syntax and spreadsheet formula prefixes in external text. */
 export function csvCell(value: string | number | null): string {
   const text = value == null ? '' : typeof value === 'number' ? String(value) : /^[=+\-@\t\r]/.test(value) ? `'${value}` : value

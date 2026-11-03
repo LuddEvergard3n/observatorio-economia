@@ -40,6 +40,14 @@ A linha do tempo registra resultados negativos e positivos sem transformar coinc
 
 Para tributação, a classificação distingue: criação de incidência, aumento de alíquota, ampliação de base, prorrogação, substituição de tributos e desoneração. O inventário cobre as principais medidas federais sancionadas nos governos Lula I, II e III que afetam os indicadores do painel; não pretende listar cada ajuste setorial, decreto de alíquota, decisão judicial ou norma infralegal. A EC 132/2023 e a LC 214/2025 são mostradas como reforma com substituição gradual de tributos, e não como três cobranças adicionais isoladas.
 
+### Inventário tributário desde 1991
+
+A página `#taxes` usa atos do Planalto, fichas de tramitação da Câmara, Receita Federal, Tesouro Nacional e Ipea. “Autor” significa o autor formal da proposição. Emenda constitucional é promulgada pelo Congresso e, portanto, o presidente mostrado é contexto de governo, não autoridade sancionadora.
+
+O “custo observado” só exibe arrecadação quando a fonte publica um valor compatível. Quando um tributo é municipal, não tem série isolada ou ainda está em transição, a ausência é declarada em vez de estimar um custo por cidadão. Os marcos de carga tributária de 1991 e 2024/2025 pertencem a edições metodológicas diferentes e não formam, sozinhos, uma série homogênea.
+
+O gráfico anual de poder de compra reutiliza a série mensal do IPCA (SGS 433, origem IBGE). Para cada ano completo, calcula a variação do poder de compra do mesmo valor nominal; não converte cruzeiros de 1991 em reais e não mistura inflação com evolução salarial.
+
 ## Pendências explícitas
 
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.

@@ -71,6 +71,12 @@ Não há diretório `include/`: este projeto não possui cabeçalhos C/C++.
 
 ## Dados, limitações e publicação
 
+### Tributos e poder de compra
+
+A rota `#taxes` mantém um inventário auditável das criações federais, novas incidências e autorizações nacionais identificadas desde 1991. A ficha distingue criação, substituição, aumento e transição; registra a proposição formal, o presidente em exercício e a norma aprovada. Tributos estaduais e municipais não são apresentados como lista nacional completa porque dependem de milhares de leis locais.
+
+O peso agregado usa carga tributária como proporção do PIB, com a edição metodológica indicada. O gráfico de poder de compra deriva a perda anual do IPCA mensal pela fórmula `1 / produto(1 + taxa mensal) - 1`; anos incompletos permanecem sem valor. Ele mede inflação, não renda familiar nem incidência individual de tributos.
+
 Leia [fontes e cobertura](docs/DATA-SOURCES.md), [mudanças metodológicas e contexto político](docs/METHODOLOGY-CHANGES.md), [metodologia IDMI](docs/IDMI.md) e [operação](docs/OPERATIONS.md).
 
 O catálogo inclui integrações pendentes, identificadas no painel. Isso não equivale a cobertura completa de todas as métricas desde 1988. Em particular: DPF/Tesouro, saldo Novo Caged, resultado primário internacional, patrimônio não humano e alguns componentes de infraestrutura precisam de integração ou validação adicional. Dados Fraser não são redistribuídos nesta versão.
