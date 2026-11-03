@@ -8,6 +8,9 @@ void Check(bool condition, string label) { if (!condition) throw new Exception(l
 void Reject(Action action, string label) { try { action(); } catch (Exception e) when (e is InvalidDataException or FormatException) { checks++; return; } throw new Exception(label); }
 Observation Point(string period, double? value) => new(period, value, "published");
 Dataset Data(params Observation[] points) => new(1, "sample", "2026-01-01T00:00:00Z", null, [], [new("BRA", points)]);
+var productionCatalog = JsonSerializer.Deserialize<Catalog>(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "catalog", "catalog.json")), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+Check(productionCatalog.Indicators.Any(i => i.Id == "labor-productivity" && i.Code == "SL.GDP.PCAP.EM.KD"), "Catalog labor productivity from WDI");
+Check(productionCatalog.Indicators.Any(i => i.Id == "poverty-830" && i.Code == "SI.POV.UMIC"), "Catalog comparable poverty line from PIP/WDI");
 Check(DataRules.ParseNumber("12,5") == 12.5, "Decimal comma");
 Check(DataRules.ParseNumber("...") is null, "Missing marker");
 Reject(() => DataRules.ParseNumber("NaN"), "Reject non-finite values");

@@ -232,6 +232,20 @@
       "statusDefault": "modeled"
     },
     {
+      "id": "labor-productivity",
+      "name": "Produtividade do trabalho",
+      "code": "SL.GDP.PCAP.EM.KD",
+      "category": "labor",
+      "unit": "Int$ de 2021 / pessoa ocupada",
+      "frequency": "annual",
+      "provider": "worldbank",
+      "source": "Banco Mundial · WDI / estimativas OIT",
+      "sourceUrl": "https://data.worldbank.org/indicator/SL.GDP.PCAP.EM.KD",
+      "description": "PIB por pessoa ocupada em dólares internacionais constantes de 2021.",
+      "notes": "O denominador usa estimativas de emprego de fontes internacionais. Crescimento acumulado depende dos anos inicial e final; valores recentes podem ser preliminares.",
+      "statusDefault": "modeled"
+    },
+    {
       "id": "population",
       "name": "População",
       "code": "SP.POP.TOTL",
@@ -244,6 +258,20 @@
       "description": "População total, utilizada como contexto para comparar países.",
       "notes": "A fonte internacional pode republicar ou harmonizar estatísticas nacionais. Consulte a origem primária nos metadados.",
       "statusDefault": "published"
+    },
+    {
+      "id": "poverty-830",
+      "name": "Pobreza · US$ 8,30 por dia",
+      "code": "SI.POV.UMIC",
+      "category": "development",
+      "unit": "% da população",
+      "frequency": "annual",
+      "provider": "worldbank",
+      "source": "Banco Mundial · PIP/WDI",
+      "sourceUrl": "https://data.worldbank.org/indicator/SI.POV.UMIC",
+      "description": "Parcela da população abaixo de US$ 8,30 por dia em PPC de 2021.",
+      "notes": "Os anos de pesquisa variam entre países. Comparar redução exige fixar anos comuns; rankings com anos finais diferentes não são diretamente comparáveis.",
+      "statusDefault": "estimate"
     },
     {
       "id": "literacy",

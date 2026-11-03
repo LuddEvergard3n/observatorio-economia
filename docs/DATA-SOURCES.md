@@ -5,6 +5,8 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 | Grupo | Origem e integração | Limites |
 | --- | --- | --- |
 | Atividade, população, infraestrutura e comparações | [Banco Mundial WDI API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation) | Metadados de cada série identificam produtores nacionais e internacionais; cobertura irregular. Não preencher lacunas. |
+| Produtividade do trabalho | [Banco Mundial · WDI](https://data.worldbank.org/indicator/SL.GDP.PCAP.EM.KD) | PIB por pessoa ocupada em PPC constante de 2021. O emprego usa estimativas de OIT, ONU e outras fontes; valores recentes podem ser preliminares. |
+| Pobreza a US$ 8,30/dia | [Banco Mundial · PIP/WDI](https://data.worldbank.org/indicator/SI.POV.UMIC) | PPC de 2021. Os anos de pesquisa não coincidem entre todos os países; rankings de redução só são comparáveis quando fixam a mesma janela. |
 | Riqueza não humana por habitante | [Banco Mundial Wealth Accounts 2024](https://datacatalog.worldbank.org/search/dataset/0042066/wealth-accounting), API fonte 59 | Riqueza abrangente menos capital humano, ambos em US$ correntes e da mesma edição. Cobertura 1995–2020; não usar a diferença entre componentes reais encadeados. |
 | Cobertura da coleta de resíduos | [Banco Mundial What a Waste 3.0](https://datacatalog.worldbank.org/search/dataset/0039597/what-a-waste-global-database) | Indicador nacional de população atendida. Cada país preserva o ano do Codebook; não é série anual contínua nem substitui população por domicílios ou peso de resíduos. |
 | Atendimento por rede coletora de esgoto | [Ministério das Cidades · SINISA](https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/sinisa/resultados-sinisa/resultados-sinisa) | Brasil, 2023: 59,70% da população total. Fonte consolidada por UF/Macrorregião/Brasil, aba Atendimento, linha TOTAL NACIONAL. O hash do XLSX de origem fica na proveniência da série. |
@@ -27,6 +29,14 @@ O catálogo executável é `catalog/catalog.json`. Cada entrada contém código,
 - DBGG, DLSP e DPF não são intercambiáveis. Resultado primário/nominal BCB expressos como NFSP recebem fator −1 no catálogo para apresentar superávit positivo. Juros nominais conservam o sinal de despesa.
 - Salário mínimo é distinto de rendimento médio do trabalho. Ambos aparecem em séries separadas.
 - O analfabetismo internacional é 100 menos a alfabetização de adultos na mesma série. Isso não o torna idêntico a todas as definições nacionais.
+- PIB por pessoa ocupada mede produtividade média aparente, não salário, horas trabalhadas nem produtividade total dos fatores.
+- Na dívida, 82,9% do PIB em setembro de 2026 é a DBGG observada na definição do BCB. Os 97,8% do FMI são projeção anual de 2026 no conceito internacional; não são uma observação mensal equivalente.
+
+## Auditoria de governos e medidas tributárias
+
+A linha do tempo registra resultados negativos e positivos sem transformar coincidência temporal em causalidade. Cada item informa o governo em exercício, o responsável institucional e a fonte primária. Comparações recebidas como imagem são tratadas como alegações até serem reproduzidas em uma série oficial.
+
+Para tributação, a classificação distingue: criação de incidência, aumento de alíquota, ampliação de base, prorrogação, substituição de tributos e desoneração. O inventário cobre as principais medidas federais sancionadas nos governos Lula I, II e III que afetam os indicadores do painel; não pretende listar cada ajuste setorial, decreto de alíquota, decisão judicial ou norma infralegal. A EC 132/2023 e a LC 214/2025 são mostradas como reforma com substituição gradual de tributos, e não como três cobranças adicionais isoladas.
 
 ## Pendências explícitas
 
