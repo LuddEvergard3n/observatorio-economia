@@ -1,19 +1,24 @@
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { ExternalLink, Info, Landmark, ReceiptText, Scale, WalletCards } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { taxChanges } from '@/content/taxes'
 import { useDataset } from '@/lib/data'
-import { annualPurchasingPower, number } from '@/lib/format'
+import { annualPurchasingPower, linearAnnualEstimate, number } from '@/lib/format'
 import { useTranslation } from '@/lib/i18n'
 import type { Dataset, Indicator, Manifest } from '@/lib/types'
 
 const Chart = lazy(() => import('@/components/Chart'))
 const brazil = [{ id: 'BRA', name: 'Brasil', region: 'Latin America', color: '#08745a' }]
+const taxBurden2025 = 4_127_232_000_000
 const definition: Indicator = { id: 'purchasing-power-year', name: 'Variação anual do poder de compra', code: 'derived:ipca-monthly', category: 'prices', unit: '% no ano', frequency: 'annual', provider: 'derived', source: 'IBGE · IPCA', sourceUrl: 'https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-ipca.html', description: 'Quanto o mesmo valor nominal ganhou ou perdeu em capacidade de comprar a cesta do IPCA em cada ano.', notes: 'Cálculo: 1 dividido pelo fator acumulado do IPCA no ano, menos 1. Exige os 12 meses; não soma taxas.', statusDefault: 'derived' }
 
 /** Present audited tax creations separately from increases, replacements and aggregate household purchasing power. */
 export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolean }) {
   const { locale, t } = useTranslation()
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => { const timer = window.setInterval(() => setNow(new Date()), 1000); return () => window.clearInterval(timer) }, [])
+  const meter = linearAnnualEstimate(taxBurden2025, now)
+  const money = (value: number) => new Intl.NumberFormat(locale, { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value)
   const { data, error, loading } = useDataset('ipca-monthly', manifest.generatedAt)
   const purchasingPower = useMemo<Dataset | null>(() => data ? { schemaVersion: 1, id: definition.id, retrievedAt: data.retrievedAt, sourceNote: definition.notes, provenance: data.provenance, series: [{ country: 'BRA', observations: annualPurchasingPower(data.series.find(series => series.country === 'BRA')?.observations ?? []) }] } : null, [data])
   const earlyYears = purchasingPower?.series[0].observations.filter(point => Number(point.period) < 1995) ?? []
@@ -21,6 +26,13 @@ export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolea
   return <>
     <div className="page-intro"><div><div className="eyebrow">{t('taxes.eyebrow')}</div><h1>{t('taxes.title')}</h1><p>{t('taxes.description')}</p></div></div>
     <div className="notice"><Scale size={18}/><p><strong>{t('taxes.scopeTitle')}</strong> {t('taxes.scope')}</p></div>
+    <section className="tax-meter" aria-labelledby="tax-meter-title">
+      <div className="tax-meter-top"><div><div className="eyebrow">{t('taxes.meterEyebrow')}</div><h2 id="tax-meter-title">{t('taxes.meterTitle', { year: now.getFullYear() })}</h2></div><Badge variant="outline">{t('taxes.estimate')}</Badge></div>
+      <strong className="tax-meter-value" aria-label={money(meter.accumulated)}>{money(meter.accumulated)}</strong>
+      <div className="tax-meter-track" aria-hidden="true"><span style={{ width: `${meter.progress * 100}%` }}/></div>
+      <div className="tax-meter-stats"><div><span>{t('taxes.perSecond')}</span><strong>{money(meter.perSecond)}</strong></div><div><span>{t('taxes.perDay')}</span><strong>{money(meter.perDay)}</strong></div><div><span>{t('taxes.yearProgress')}</span><strong>{number(meter.progress * 100, 1)}%</strong></div></div>
+      <p>{t('taxes.meterMethod')} <a href="https://cdn.tesouro.gov.br/sistemas-internos/apex/producao/sistemas/thot/arquivos/publicacoes/54334_1699660/Boletim_CTB_2025.pdf" target="_blank" rel="noreferrer">{t('taxes.openBasis')} <ExternalLink size={11}/></a></p>
+    </section>
     <section className="tax-summary" aria-label={t('taxes.burdenTitle')}>
       <article className="panel"><span>1991</span><strong>25,24%</strong><small>{t('taxes.gdp')}</small></article>
       <article className="panel"><span>2024</span><strong>32,32%</strong><small>{t('taxes.gdp')}</small></article>

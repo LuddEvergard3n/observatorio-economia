@@ -77,6 +77,16 @@ export function annualPurchasingPower(points: Observation[], from = 1991): Obser
   })
 }
 
+/** Project a full-year observed total onto the elapsed share of another calendar year. */
+export function linearAnnualEstimate(total: number, at: Date): { accumulated: number; progress: number; perDay: number; perSecond: number } {
+  if (!Number.isFinite(total) || total < 0 || !Number.isFinite(at.getTime())) return { accumulated: 0, progress: 0, perDay: 0, perSecond: 0 }
+  const start = Date.UTC(at.getUTCFullYear(), 0, 1)
+  const end = Date.UTC(at.getUTCFullYear() + 1, 0, 1)
+  const progress = Math.min(1, Math.max(0, (at.getTime() - start) / (end - start)))
+  const seconds = (end - start) / 1000
+  return { accumulated: total * progress, progress, perDay: total / (seconds / 86400), perSecond: total / seconds }
+}
+
 /** Escape both CSV syntax and spreadsheet formula prefixes in external text. */
 export function csvCell(value: string | number | null): string {
   const text = value == null ? '' : typeof value === 'number' ? String(value) : /^[=+\-@\t\r]/.test(value) ? `'${value}` : value

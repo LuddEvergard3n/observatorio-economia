@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { eventsForIndicator } from '../../src/content/events'
 import { completedIdmiDimensions, idmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
-import { annualPurchasingPower, chartPoints, compound, csvCell, number } from '../../src/lib/format'
+import { annualPurchasingPower, chartPoints, compound, csvCell, linearAnnualEstimate, number } from '../../src/lib/format'
 
 describe('IDMI 2023: profiles, variants and missing evidence', () => {
   it('accepts only the frozen 2023 profile schema and retains missing dimensions', () => {
@@ -39,6 +39,12 @@ describe('statistical presentation and exports', () => {
     const months = Array.from({ length: 12 }, (_, index) => ({ period: `1991-${String(index + 1).padStart(2, '0')}`, value: 1, status: 'published' }))
     expect(annualPurchasingPower(months)[0].value).toBeCloseTo(-11.2551, 3)
     expect(annualPurchasingPower(months.slice(0, 11))[0].value).toBeNull()
+  })
+  it('projects an annual tax total by the exact elapsed share of the calendar year', () => {
+    const estimate = linearAnnualEstimate(366, new Date('2024-07-02T00:00:00Z'))
+    expect(estimate.progress).toBe(0.5)
+    expect(estimate.accumulated).toBe(183)
+    expect(estimate.perDay).toBe(1)
   })
   it('inserts null chart coordinates between available years', () => {
     const points = chartPoints([{ period: '2020', value: 5, status: 'published' }, { period: '2022', value: 7, status: 'published' }], 'annual', 2020, 2022)

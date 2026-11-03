@@ -48,6 +48,8 @@ O “custo observado” só exibe arrecadação quando a fonte publica um valor 
 
 O gráfico anual de poder de compra reutiliza a série mensal do IPCA (SGS 433, origem IBGE). Para cada ano completo, calcula a variação do poder de compra do mesmo valor nominal; não converte cruzeiros de 1991 em reais e não mistura inflação com evolução salarial.
 
+O arrecadômetro toma como base fixa os R$ 4.127.232 milhões da carga tributária bruta do governo geral em 2025, publicados como dado preliminar pela STN no Boletim CTB 2025. O navegador multiplica esse total pela fração transcorrida do calendário atual e mostra os ritmos equivalentes por dia e segundo. Não há consulta ao Impostômetro, extrapolação de sazonalidade ou alegação de arrecadação oficial instantânea.
+
 ## Pendências explícitas
 
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.

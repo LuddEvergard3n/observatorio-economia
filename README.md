@@ -77,6 +77,8 @@ A rota `#taxes` mantém um inventário auditável das criações federais, novas
 
 O peso agregado usa carga tributária como proporção do PIB, com a edição metodológica indicada. O gráfico de poder de compra deriva a perda anual do IPCA mensal pela fórmula `1 / produto(1 + taxa mensal) - 1`; anos incompletos permanecem sem valor. Ele mede inflação, não renda familiar nem incidência individual de tributos.
 
+O arrecadômetro usa a estimativa preliminar da STN de R$ 4,127 trilhões para a carga tributária bruta de 2025. Esse total é distribuído linearmente pelo calendário do ano corrente no navegador. O resultado é uma referência visual auditável, não telemetria oficial em tempo real nem projeção de crescimento.
+
 Leia [fontes e cobertura](docs/DATA-SOURCES.md), [mudanças metodológicas e contexto político](docs/METHODOLOGY-CHANGES.md), [metodologia IDMI](docs/IDMI.md) e [operação](docs/OPERATIONS.md).
 
 O catálogo inclui integrações pendentes, identificadas no painel. Isso não equivale a cobertura completa de todas as métricas desde 1988. Em particular: DPF/Tesouro, saldo Novo Caged, resultado primário internacional, patrimônio não humano e alguns componentes de infraestrutura precisam de integração ou validação adicional. Dados Fraser não são redistribuídos nesta versão.
