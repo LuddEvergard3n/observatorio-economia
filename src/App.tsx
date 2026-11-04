@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Activity, ArrowUpRight, BarChart3, BookOpen, ChevronRight, CircleDollarSign, Database, Globe2, Landmark, LayoutDashboard, Menu, Moon, Network, ReceiptText, Search, Sun, Users, X } from 'lucide-react'
+import { Activity, ArrowUpRight, BarChart3, BookOpen, ChevronRight, CircleDollarSign, Database, Globe2, Landmark, LayoutDashboard, Menu, Moon, Network, ReceiptText, Search, Ship, Sun, Users, X, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { getManifest } from '@/lib/data'
@@ -12,6 +12,8 @@ import { IdmiPage } from '@/pages/Idmi'
 import { HistoryPage } from '@/pages/History'
 import { SourcesPage } from '@/pages/Sources'
 import { TaxesPage } from '@/pages/Taxes'
+import { IndicatorModulePage } from '@/pages/Modules'
+import { GovernmentsPage } from '@/pages/Governments'
 
 const navigation = [
   { id:'overview', label:'nav.overview', icon:LayoutDashboard },
@@ -21,7 +23,10 @@ const navigation = [
   { id:'labor', label:'nav.labor', icon:Users },
   { id:'development', label:'nav.development', icon:BarChart3 },
   { id:'infrastructure', label:'nav.infrastructure', icon:Network },
+  { id:'trade', label:'nav.trade', icon:Ship },
+  { id:'quality', label:'nav.quality', icon:Zap },
   { id:'compare', label:'nav.compare', icon:Globe2 },
+  { id:'governments', label:'nav.governments', icon:Landmark },
   { id:'history', label:'nav.history', icon:BookOpen },
   { id:'taxes', label:'nav.taxes', icon:ReceiptText },
   { id:'idmi', label:'nav.idmi', icon:BarChart3 },
@@ -45,7 +50,7 @@ export default function App() {
   useEffect(()=>{const escape=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenu(false)};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape)},[])
   const [path='overview',query='']=(hash.replace(/^#\/?/,'')||'overview').split('?')
   const params=new URLSearchParams(query)
-  const category=navigation.slice(1,7).some(n=>n.id===path)?path as Category:undefined
+  const category=['activity','prices','fiscal','labor','development','infrastructure'].includes(path)?path as Category:undefined
   const label=navigation.find(n=>n.id===path)?.label ? t(navigation.find(n=>n.id===path)!.label) : path.startsWith('indicator/') ? t('app.indicatorDetail') : t('app.catalogLabel')
   const stale=manifest?now-Date.parse(manifest.generatedAt)>3*3600*1000:false
   const indicatorId=path.startsWith('indicator/')?path.slice(10):undefined
@@ -57,7 +62,7 @@ export default function App() {
       <main id="main-content" tabIndex={-1}><div className="content-container">{error?<div className="empty-state fatal-error"><Database size={36}/><h1>{t('app.catalogFailed')}</h1><p>{error}</p><Button onClick={load}>{t('app.retry')}</Button></div>:!manifest?<div className="initial-loading" role="status"><span className="brand-mark"><BarChart3/></span><h1>{t('app.loadingTitle')}</h1><p>{t('app.loadingText')}</p></div>:<>
         <div className="publication-line"><span className={`live-dot ${stale?'amber':''}`}/><span>{stale?t('app.stale'):t('app.lastCheck')} · {timestamp(manifest.generatedAt)} <span className="publication-zone">({t('app.brasilia')})</span></span><a href="#sources">{t('app.coverage')} <ChevronRight size={12}/></a></div>
         {stale&&<div className="notice warning"><p>{t('app.staleNotice')}</p></div>}
-        {path==='overview'?<Overview manifest={manifest} dark={dark}/>:category||path==='indicators'?<CatalogPage manifest={manifest} category={category} query={params.get('q')??''}/>:path==='compare'||knownIndicator?<ComparePage key={hash} manifest={manifest} dark={dark} params={params} indicatorId={indicatorId}/>:path==='idmi'?<IdmiPage manifest={manifest}/>:path==='history'?<HistoryPage selectedEvent={params.get('event')??undefined}/>:path==='taxes'?<TaxesPage manifest={manifest} dark={dark}/>:path==='sources'?<SourcesPage manifest={manifest}/>:<div className="empty-state"><h1>{t('app.notFound')}</h1><a className="text-link" href="#overview">{t('app.backOverview')}</a></div>}
+        {path==='overview'?<Overview manifest={manifest} dark={dark}/>:category||path==='indicators'?<CatalogPage manifest={manifest} category={category} query={params.get('q')??''}/>:path==='trade'?<IndicatorModulePage manifest={manifest} dark={dark} ids={['trade-exports','trade-imports','trade-openness','terms-of-trade','exports-fuel','exports-ores','exports-food']} titleKey="trade.title" descriptionKey="trade.description" noteKey="trade.note"/>:path==='quality'?<IndicatorModulePage manifest={manifest} dark={dark} ids={['electricity-dec','electricity-fec','electric-losses','electricity-access','sewage-network','internet','logistics','roads-paved']} titleKey="quality.title" descriptionKey="quality.description" noteKey="quality.note" from={2020}/>:path==='governments'?<GovernmentsPage manifest={manifest}/>:path==='compare'||knownIndicator?<ComparePage key={hash} manifest={manifest} dark={dark} params={params} indicatorId={indicatorId}/>:path==='idmi'?<IdmiPage manifest={manifest}/>:path==='history'?<HistoryPage selectedEvent={params.get('event')??undefined}/>:path==='taxes'?<TaxesPage manifest={manifest} dark={dark}/>:path==='sources'?<SourcesPage manifest={manifest}/>:<div className="empty-state"><h1>{t('app.notFound')}</h1><a className="text-link" href="#overview">{t('app.backOverview')}</a></div>}
         <footer className="footer"><div><span className="footer-brand">observatório</span><p>{t('app.footerTagline')}</p></div><div><a href="#sources">{t('app.sourcesCoverage')}</a><a href="#idmi">{t('app.idmiMethod')}</a><span>{t('app.hourlyUpdate')}</span></div></footer>
       </>}</div></main>
     </div>

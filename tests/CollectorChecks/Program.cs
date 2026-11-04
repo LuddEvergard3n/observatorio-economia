@@ -12,9 +12,19 @@ var productionCatalog = JsonSerializer.Deserialize<Catalog>(File.ReadAllText(Pat
 Check(productionCatalog.Indicators.Any(i => i.Id == "labor-productivity" && i.Code == "SL.GDP.PCAP.EM.KD"), "Catalog labor productivity from WDI");
 Check(productionCatalog.Indicators.Any(i => i.Id == "poverty-830" && i.Code == "SI.POV.UMIC"), "Catalog comparable poverty line from PIP/WDI");
 Check(productionCatalog.Indicators.Any(i => i.Id == "primary-imf" && i.Provider == "imf-fm" && i.Code == "GGXONLB_G01_GDP_PT"), "Catalog IMF Fiscal Monitor primary balance");
+Check(productionCatalog.Indicators.Any(i => i.Id == "electricity-dec" && i.Provider == "aneel-continuity"), "Catalog ANEEL continuity quality");
+Check(productionCatalog.Indicators.Any(i => i.Id == "household-income-median" && i.Code.Contains("49264")), "Catalog official household income median");
+Check(productionCatalog.Indicators.Count(i => i.Id.StartsWith("trade-") || i.Id.StartsWith("exports-") || i.Id == "terms-of-trade") == 7, "Catalog trade and commodities module");
 Check(DataRules.ParseNumber("12,5") == 12.5, "Decimal comma");
 Check(DataRules.ParseNumber("...") is null, "Missing marker");
 Reject(() => DataRules.ParseNumber("NaN"), "Reject non-finite values");
+var continuity = DataRules.AggregateContinuity(
+    Enumerable.Range(1, 12).SelectMany(month => new[] { ("A", month, 1d), ("B", month, 3d) }),
+    Enumerable.Range(1, 12).SelectMany(month => new[] { ("A", month, 1d), ("B", month, 3d) }));
+Check(Math.Abs(continuity - 30) < 1e-8, "Weight and sum monthly DEC/FEC");
+Check(Math.Abs(DataRules.AggregateContinuity(Enumerable.Range(1, 12).SelectMany(month => new[] { ("A", month, 2d), ("A", month, 2d) }), Enumerable.Range(1, 12).Select(month => ("A", month, 1d))) - 24) < 1e-8, "Ignore identical ANEEL duplicate rows");
+Reject(() => DataRules.AggregateContinuity(Enumerable.Range(1, 12).SelectMany(month => new[] { ("A", month, 2d), ("A", month, month == 1 ? 3d : 2d) }), Enumerable.Range(1, 12).Select(month => ("A", month, 1d))), "Reject conflicting ANEEL duplicate rows");
+Reject(() => DataRules.AggregateContinuity([("A", 1, 1d)], [("A", 1, 1d)]), "Reject incomplete continuity year");
 Check(DataRules.SidraPeriod("202403", "quarterly") == "2024-Q3", "Quarter code");
 Check(DataRules.SidraPeriod("202403", "rolling-quarter") == "2024-03", "Rolling quarter code");
 Reject(() => DataRules.SidraPeriod("202405", "quarterly"), "Reject invalid quarter");

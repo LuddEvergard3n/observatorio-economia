@@ -10,6 +10,8 @@ Coleta serial, intervalo mínimo de um segundo por host, até três tentativas p
 
 BCB atualiza dois anos recentes, começando no primeiro dia do mês. Reconciliação completa: domingo entre 03:00–03:59 de Brasília ou execução manual com `full=true`. Outras bases devolvem séries completas. Respostas são reutilizadas dentro da execução; ETag e Last-Modified permitem requisições condicionais quando o provedor oferece suporte.
 
+O conector da ANEEL consulta DEC, FEC e `NumCon` por ano no DataStore CKAN. Publica somente anos com os 12 meses completos e anteriores ao ano corrente. A ponderação nacional é validada antes da gravação; falha ou mudança de esquema preserva o último snapshot válido.
+
 Não há garantia de que todas as fontes publicarão a cada hora. A coleta central evita chamadas de cada visitante às APIs.
 
 Abas abertas verificam o manifesto estático a cada hora e preservam a versão visível se a conexão falhar. Selic, IPCA e dívida bruta mantêm duas casas decimais no panorama; a PTAX mantém quatro.

@@ -6,6 +6,31 @@ namespace Observatory;
 
 public static partial class DataRules
 {
+    /// <summary>Build a national annual DEC/FEC by weighting each monthly set value by its consumer count.</summary>
+    public static double AggregateContinuity(IEnumerable<(string Set, int Month, double Value)> indicators, IEnumerable<(string Set, int Month, double Value)> consumers)
+    {
+        static Dictionary<(string Set, int Month), double> Unique(IEnumerable<(string Set, int Month, double Value)> points) => points
+            .GroupBy(point => (point.Set, point.Month)).ToDictionary(group => group.Key, group =>
+            {
+                var values = group.Select(point => point.Value).Distinct().ToArray();
+                if (values.Length != 1) throw new InvalidDataException("ANEEL has conflicting duplicate values.");
+                return values[0];
+            });
+        var values = Unique(indicators);
+        var weights = Unique(consumers);
+        var monthly = values.Where(point => weights.ContainsKey(point.Key))
+            .GroupBy(point => point.Key.Month)
+            .Select(group =>
+            {
+                var denominator = group.Sum(point => weights[point.Key]);
+                if (denominator <= 0) throw new InvalidDataException("ANEEL consumer weights must be positive.");
+                return (Month: group.Key, Value: group.Sum(point => point.Value * weights[point.Key]) / denominator);
+            }).OrderBy(point => point.Month).ToArray();
+        if (monthly.Length != 12 || monthly.Select(point => point.Month).Distinct().Count() != 12 || monthly[0].Month != 1 || monthly[^1].Month != 12)
+            throw new InvalidDataException("ANEEL continuity year is incomplete.");
+        return monthly.Sum(point => point.Value);
+    }
+
     /// <summary>Aggregate the Tesouro title-level CSV into monthly DPF held by the market, expressed in R$ millions.</summary>
     public static Observation[] AggregateFederalDebt(TextReader reader, string status)
     {

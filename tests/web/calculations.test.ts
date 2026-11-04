@@ -4,6 +4,7 @@ import { eventsForIndicator } from '../../src/content/events'
 import { stateFiscalSnapshot } from '../../src/content/stateFiscal'
 import { completedIdmiDimensions, idmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
 import { annualPurchasingPower, chartPoints, compound, csvCell, linearAnnualEstimate, number } from '../../src/lib/format'
+import { governmentStatistics } from '../../src/lib/governments'
 
 describe('IDMI 2023: profiles, variants and missing evidence', () => {
   it('accepts only the frozen 2023 profile schema and retains missing dimensions', () => {
@@ -29,6 +30,13 @@ describe('IDMI 2023: profiles, variants and missing evidence', () => {
 })
 
 describe('statistical presentation and exports', () => {
+  it('groups annual values without hiding incomplete government coverage', () => {
+    const result = governmentStatistics([
+      { period:'2003', value:2, status:'published' }, { period:'2004', value:3, status:'published' },
+      { period:'2006', value:4, status:'published' },
+    ], { label:'Lula I', start:2003, end:2006 })
+    expect(result).toMatchObject({ count:3, expected:4, average:3, cumulative:null, first:2, last:4 })
+  })
   it('compounds rates instead of adding them and preserves gaps', () => {
     expect(compound([10, 10])).toBeCloseTo(21)
     expect(compound([10, null])).toBeNull()
@@ -72,5 +80,7 @@ describe('historical chart context', () => {
     expect(hdiEvents).toEqual(expect.arrayContaining(['constitution', 'hdi2010', 'hdi2025']))
     expect(ipcaEvents).toContain('ipca2020')
     expect(ipcaEvents).not.toContain('ppp2021')
+    expect(eventsForIndicator('electricity-dec', 'infrastructure').map(event => event.id)).not.toContain('sinisa2024')
+    expect(eventsForIndicator('sewage-network', 'infrastructure').map(event => event.id)).toContain('sinisa2024')
   })
 })

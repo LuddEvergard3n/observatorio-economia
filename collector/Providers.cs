@@ -130,6 +130,41 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
                 note = "BCB/SGS " + definition.Code + ". " + definition.Notes;
                 break;
             }
+            case "aneel-continuity":
+            {
+                const string resource = "4493985c-baea-429c-9df5-3030422c71d7";
+                async Task<List<(string Set, int Month, double Value)>> ReadContinuity(string indicator, int year)
+                {
+                    var filters = Uri.EscapeDataString(JsonSerializer.Serialize(new Dictionary<string, string> { ["SigIndicador"] = indicator, ["AnoIndice"] = year.ToString(CultureInfo.InvariantCulture) }));
+                    var points = new List<(string Set, int Month, double Value)>();
+                    var offset = 0;
+                    while (true)
+                    {
+                        var url = $"https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id={resource}&limit=32000&offset={offset}&fields=IdeConjUndConsumidoras,NumPeriodoIndice,VlrIndiceEnviado&filters={filters}";
+                        using var doc = JsonDocument.Parse(await Read(url));
+                        if (!doc.RootElement.GetProperty("success").GetBoolean()) throw new InvalidDataException("ANEEL returned an unsuccessful response.");
+                        var result = doc.RootElement.GetProperty("result");
+                        var records = result.GetProperty("records");
+                        points.AddRange(records.EnumerateArray().Select(row => (
+                            row.GetProperty("IdeConjUndConsumidoras").ToString(),
+                            int.Parse(row.GetProperty("NumPeriodoIndice").ToString(), CultureInfo.InvariantCulture),
+                            Number(row.GetProperty("VlrIndiceEnviado")) ?? throw new InvalidDataException("Missing ANEEL continuity value."))));
+                        if (points.Count >= result.GetProperty("total").GetInt32()) return points;
+                        if (records.GetArrayLength() == 0) throw new InvalidDataException("ANEEL pagination ended early.");
+                        offset += records.GetArrayLength();
+                    }
+                }
+                var observations = new List<Observation>();
+                for (var year = 2022; year < asOf.Year; year++)
+                {
+                    var indicator = await ReadContinuity(definition.Code, year);
+                    var consumers = await ReadContinuity("NumCon", year);
+                    observations.Add(new Observation(year.ToString(CultureInfo.InvariantCulture), DataRules.AggregateContinuity(indicator, consumers), definition.StatusDefault));
+                }
+                series.Add(new Series("BRA", observations.ToArray()));
+                note = "Base mensal por conjunto de unidades consumidoras. Resultado nacional calculado como média mensal ponderada por NumCon, somada para os 12 meses; o ano corrente incompleto é excluído.";
+                break;
+            }
             case "ibge":
             {
                 var parts = definition.Code.Split('/');

@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { ExternalLink, Info, Landmark, ReceiptText, Scale, WalletCards } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { SeriesPanel } from '@/components/SeriesPanel'
 import { taxChanges } from '@/content/taxes'
 import { useDataset } from '@/lib/data'
 import { annualPurchasingPower, linearAnnualEstimate, number } from '@/lib/format'
-import { useTranslation } from '@/lib/i18n'
+import { localizedIndicator, useTranslation } from '@/lib/i18n'
 import type { Dataset, Indicator, Manifest } from '@/lib/types'
 
 const Chart = lazy(() => import('@/components/Chart'))
@@ -17,6 +18,9 @@ const definition: Indicator = { id: 'purchasing-power-year', name: 'Variação a
 export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolean }) {
   const { locale, t } = useTranslation()
   const [now, setNow] = useState(() => new Date())
+  const householdEntries = ['household-income-mean', 'household-income-median', 'household-debt'].flatMap(id => manifest.indicators.filter(entry => entry.definition.id === id))
+  const [householdId, setHouseholdId] = useState(householdEntries[0]?.definition.id ?? '')
+  const householdEntry = householdEntries.find(entry => entry.definition.id === householdId) ?? householdEntries[0]
   useEffect(() => { const timer = window.setInterval(() => setNow(new Date()), 1000); return () => window.clearInterval(timer) }, [])
   const meter = linearAnnualEstimate(taxBurden2025, now)
   const money = (value: number) => new Intl.NumberFormat(locale, { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value)
@@ -52,6 +56,12 @@ export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolea
       {loading ? <div className="chart-loading">{t('series.loading')}</div> : error || !purchasingPower ? <div className="notice warning"><Info size={16}/><p>{error ?? t('series.unavailable')}</p></div> : <><div className="early-power"><span>{t('taxes.earlyYears')}</span>{earlyYears.map(point => <div key={point.period}><small>{point.period}</small><strong>{number(point.value, 1)}%</strong></div>)}</div><Suspense fallback={<div className="chart-loading">{t('series.preparing')}</div>}><Chart data={purchasingPower} definition={definition} countries={brazil} from={1995} to={latestYear} dark={dark} height={360}/></Suspense></>}
       <p className="small-note power-note">{t('taxes.powerNote')}</p>
     </section>
+
+    {householdEntry && <section className="household-section" aria-labelledby="household-title">
+      <div className="section-title"><span>{t('taxes.householdEyebrow')}</span><h2 id="household-title">{t('taxes.householdTitle')}</h2><p>{t('taxes.householdDescription')}</p></div>
+      <div className="panel module-picker"><span className="field-label">{t('compare.indicator')}</span><div>{householdEntries.map(entry => <button key={entry.definition.id} className={`country-chip ${entry.definition.id === householdEntry.definition.id ? 'selected' : ''}`} aria-pressed={entry.definition.id === householdEntry.definition.id} onClick={() => setHouseholdId(entry.definition.id)}>{localizedIndicator(locale, entry.definition.id, entry.definition.name, 'name')}</button>)}</div></div>
+      <SeriesPanel key={householdEntry.definition.id} entry={householdEntry} countries={manifest.countries.filter(country => country.id === 'BRA')} from={2005} to={2026} version={manifest.generatedAt} dark={dark}/>
+    </section>}
 
     <div className="section-title tax-ledger-title"><span>{t('taxes.ledgerEyebrow')}</span><h2>{t('taxes.ledgerTitle')}</h2><p>{t('taxes.ledgerDescription')}</p></div>
     <div className="tax-ledger">{taxChanges.map(item => {

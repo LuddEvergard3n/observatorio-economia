@@ -72,11 +72,17 @@ Não há diretório `include/`: este projeto não possui cabeçalhos C/C++.
 
 ## Dados, limitações e publicação
 
+### Comércio, governos, infraestrutura e bolso do cidadão
+
+As rotas `#trade`, `#governments` e `#quality` reúnem, respectivamente, comércio exterior e composição das exportações; estatísticas anuais agrupadas pelo presidente em exercício em 31 de dezembro; e qualidade efetivamente entregue pela infraestrutura. O comparador de governos é descritivo: exibe cobertura e transições, sem atribuir causalidade exclusiva ao chefe do Executivo.
+
+A rota `#taxes` também compara renda domiciliar real média e mediana com o endividamento das famílias. Média, mediana e estoque de dívida têm unidades e conceitos distintos e não são somados.
+
 ### Tributos e poder de compra
 
 A rota `#taxes` mantém uma seleção auditada, não exaustiva, das principais criações federais, novas incidências, autorizações e substituições identificadas desde 1991. A ficha distingue criação, substituição, aumento e transição; registra a proposição formal, o presidente em exercício e a norma aprovada. Tributos estaduais e municipais não são apresentados como lista nacional completa porque dependem de milhares de leis locais.
 
-O peso agregado usa carga tributária como proporção do PIB, com a edição metodológica indicada. O gráfico de poder de compra deriva a perda anual do IPCA mensal pela fórmula `1 / produto(1 + taxa mensal) - 1`; anos incompletos permanecem sem valor. Ele mede inflação, não renda familiar nem incidência individual de tributos.
+O peso agregado usa carga tributária como proporção do PIB, com a edição metodológica indicada. O gráfico de poder de compra deriva a perda anual do IPCA mensal pela fórmula `1 / produto(1 + taxa mensal) - 1`; anos incompletos permanecem sem valor. Ele mede inflação e fica separado das séries de renda familiar e endividamento.
 
 O arrecadômetro usa a estimativa preliminar da STN de R$ 4,127 trilhões para a carga tributária bruta de 2025. Esse total é distribuído linearmente pelo calendário do ano corrente no navegador. O resultado é uma referência visual auditável, não telemetria oficial em tempo real nem projeção de crescimento.
 
