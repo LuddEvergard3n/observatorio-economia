@@ -2,6 +2,14 @@ import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
 import type { Dataset, Manifest } from '../../src/lib/types'
 
+it('restores generated data on every publication without replacing static packages', () => {
+  const workflow = readFileSync('.github/workflows/publish.yml', 'utf8')
+  const restore = workflow.slice(workflow.indexOf('- name: Restore latest published data'), workflow.indexOf('- uses: actions/cache'))
+  expect(restore).not.toContain('github.event_name')
+  expect(restore).toContain('public/data/manifest.json public/data/revisions.json public/data/series')
+  expect(restore).not.toContain('origin/data public/data |')
+})
+
 it('published snapshot summaries match valid, unique, traceable observations', () => {
   const manifest = JSON.parse(readFileSync('public/data/manifest.json', 'utf8')) as Manifest
   let count = 0

@@ -2,7 +2,7 @@
 
 ## GitHub Pages e atualização
 
-`.github/workflows/publish.yml` publica a branch `main` via GitHub Actions. A branch `data` guarda os snapshots e revisões mais recentes, sem alterar o histórico do código. O build começa pelo código atual e restaura `public/data` da branch de dados.
+`.github/workflows/publish.yml` publica a branch `main` via GitHub Actions. A branch `data` guarda os snapshots e revisões mais recentes, sem alterar o histórico do código. Toda publicação restaura dessa branch apenas `manifest.json`, `revisions.json` e `series/`; pacotes estáticos versionados em `public/data`, como o IDMI congelado, continuam vindo da `main`.
 
 O agendamento é `17 * * * *` (UTC). Atualizações de fontes ocorrem no agendamento ou na execução manual com `refresh=true`; um push de código republica os dados preservados, sem uma rodada extra de chamadas. O GitHub pode atrasar ou suspender agendamentos por inatividade. A interface avisa quando o manifesto tem mais de três horas; a data de cada série continua visível. [Limitações oficiais do agendamento](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
@@ -58,4 +58,4 @@ Para recuperar, escolher um commit válido da branch `data`, examinar seus arqui
 - Países foram escolhidos como referências de escala, região e estrutura; não formam um grupo estatisticamente homogêneo.
 - Limite superior de consulta permanece em 2026 até alteração explícita do catálogo e interface.
 - Nenhuma política de geração de previsões próprias foi implementada.
-- DPF e Novo Caged continuam identificados como pendentes. O IDMI 2023 é um pacote experimental congelado, sem nota nacional completa ou ranking geral enquanto faltarem evidências. O painel não deve ser descrito como uma base historicamente completa.
+- O resultado primário internacional usa a edição de outubro de 2026 do Fiscal Monitor; o ano corrente é identificado como projeção da fonte. O IDMI 2023 é um pacote experimental congelado, sem nota nacional completa ou ranking geral enquanto faltarem evidências. O painel não deve ser descrito como uma base historicamente completa.

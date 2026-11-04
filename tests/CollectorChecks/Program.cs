@@ -11,6 +11,7 @@ Dataset Data(params Observation[] points) => new(1, "sample", "2026-01-01T00:00:
 var productionCatalog = JsonSerializer.Deserialize<Catalog>(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "catalog", "catalog.json")), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
 Check(productionCatalog.Indicators.Any(i => i.Id == "labor-productivity" && i.Code == "SL.GDP.PCAP.EM.KD"), "Catalog labor productivity from WDI");
 Check(productionCatalog.Indicators.Any(i => i.Id == "poverty-830" && i.Code == "SI.POV.UMIC"), "Catalog comparable poverty line from PIP/WDI");
+Check(productionCatalog.Indicators.Any(i => i.Id == "primary-imf" && i.Provider == "imf-fm" && i.Code == "GGXONLB_G01_GDP_PT"), "Catalog IMF Fiscal Monitor primary balance");
 Check(DataRules.ParseNumber("12,5") == 12.5, "Decimal comma");
 Check(DataRules.ParseNumber("...") is null, "Missing marker");
 Reject(() => DataRules.ParseNumber("NaN"), "Reject non-finite values");
@@ -19,6 +20,7 @@ Check(DataRules.SidraPeriod("202403", "rolling-quarter") == "2024-03", "Rolling 
 Reject(() => DataRules.SidraPeriod("202405", "quarterly"), "Reject invalid quarter");
 var allowed = new HashSet<string> { "BRA" };
 var cutoff = new DateOnly(2026, 3, 15);
+Check(DataRules.FiscalMonitorStatus("2025", cutoff) == "published" && DataRules.FiscalMonitorStatus("2026", cutoff) == "estimate", "Separate Fiscal Monitor history and current projection");
 var valid = DataRules.Validate([new("BRA", [Point("1987", 1), Point("2026-03", 2), Point("2026-04", 3), Point("2026-03-16", 4), Point("2026-Q2", 5)])], allowed, cutoff, 1988);
 Check(valid[0].Observations.Length == 1, "Filter out-of-window observations");
 Reject(() => DataRules.Validate([new("BRA", [Point("2025", 1), Point("2025", 2)])], allowed, cutoff, 1988), "Reject duplicates");

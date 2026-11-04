@@ -57,6 +57,10 @@ public static partial class DataRules
         return value;
     }
 
+    /// <summary>Distinguish the current Fiscal Monitor projection from the edition's published history.</summary>
+    public static string FiscalMonitorStatus(string period, DateOnly asOf) =>
+        int.Parse(period, CultureInfo.InvariantCulture) < asOf.Year ? "published" : "estimate";
+
     /// <summary>Convert a SIDRA reference code without treating rolling quarters as independent quarters.</summary>
     public static string SidraPeriod(string code, string frequency)
     {

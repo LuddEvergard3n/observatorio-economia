@@ -173,6 +173,17 @@ public sealed class Providers(HttpStore http, Catalog catalog, DateOnly asOf, st
                 note = definition.Notes;
                 break;
             }
+            case "imf-fm":
+            {
+                var url = $"https://www.imf.org/external/datamapper/api/v1/{definition.Code}/{string.Join('/', countries)}";
+                using var doc = JsonDocument.Parse(await Read(url));
+                var values = doc.RootElement.GetProperty("values").GetProperty(definition.Code);
+                foreach (var country in values.EnumerateObject().Where(p => countries.Contains(p.Name)))
+                    series.Add(new Series(country.Name, country.Value.EnumerateObject()
+                        .Select(p => new Observation(p.Name, Number(p.Value), DataRules.FiscalMonitorStatus(p.Name, asOf))).ToArray()));
+                note = definition.Notes;
+                break;
+            }
             case "tesouro-dpf":
             {
                 using var reader = new StringReader(await Read(FederalDebtUrl));

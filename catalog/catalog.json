@@ -1031,15 +1031,15 @@
     {
       "id": "primary-imf",
       "name": "Resultado primário · FMI",
-      "code": "GGXONLB_NGDP",
+      "code": "GGXONLB_G01_GDP_PT",
       "category": "fiscal",
       "unit": "% do PIB",
       "description": "Saldo primário do governo geral na definição do FMI.",
       "frequency": "annual",
-      "provider": "pending",
-      "source": "FMI · DataMapper/WEO",
-      "sourceUrl": "https://www.imf.org/external/datamapper/GGXONLB_NGDP",
-      "notes": "A série não veio pelo DataMapper. O WEO de outubro de 2026 oferece arquivo oficial, mas o CDN recusou a coleta automatizada; o novo IMF Data API ainda precisa de conector validado. Não substituir por resultado nominal.",
+      "provider": "imf-fm",
+      "source": "FMI · Fiscal Monitor",
+      "sourceUrl": "https://www.imf.org/external/datamapper/datasets/FM",
+      "notes": "Fiscal Monitor, edição de outubro de 2026. Resultado primário do governo geral em % do PIB: receitas menos despesas não financeiras. O ano corrente é projeção do FMI; anos anteriores são o histórico publicado pela edição e podem conter estimativas da equipe ou revisões. Não substituir por resultado nominal.",
       "statusDefault": "estimate"
     },
     {
