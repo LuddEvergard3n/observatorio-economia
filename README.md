@@ -12,6 +12,7 @@ O intervalo de consulta é 1988–2026, respeitando a cobertura de cada fonte. N
 - Catálogo por área, pesquisa, comparações entre 12 países e filtros compartilháveis por URL.
 - Gráficos Apache ECharts com leitura rápida do último dado, eixos ampliados e eventos históricos aplicáveis em cartões ligados à linha do tempo. Tabela acessível, exportações CSV/JSON/PNG e temas claro/escuro.
 - Interface, nomes editoriais e descrições dos indicadores em português, inglês, espanhol, alemão, francês, russo, chinês simplificado, japonês, coreano e polonês. A preferência fica apenas no navegador; nomes oficiais de instituições, documentos, URLs e trechos de evidência preservam o idioma publicado.
+- Linguagem visual editorial: títulos tipográficos, faixas de indicadores e divisórias substituem cartões decorativos repetidos; ícones permanecem apenas quando comunicam navegação ou ação.
 - Histórico de leis e mudanças metodológicas com documentos primários. Anotações não estabelecem causalidade.
 - IDMI autoral em seção separada: perfis congelados da edição experimental de 2023, com nove dimensões indexadas, variantes monetárias, lacunas explícitas e o relatório metodológico de referência publicado no próprio site. Nenhuma nota geral é publicada sem evidência completa.
 - Coletor C# com preservação do último conjunto válido, hashes de respostas e registro de revisões.
