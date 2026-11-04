@@ -8,6 +8,7 @@ it('restores generated data on every publication without replacing static packag
   expect(restore).not.toContain('github.event_name')
   expect(restore).toContain('public/data/manifest.json public/data/revisions.json public/data/series')
   expect(restore).not.toContain('origin/data public/data |')
+  expect(workflow).toContain('dotnet run --project collector -- --manifest-only')
 })
 
 it('published snapshot summaries match valid, unique, traceable observations', () => {

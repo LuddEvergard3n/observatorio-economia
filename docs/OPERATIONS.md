@@ -2,7 +2,7 @@
 
 ## GitHub Pages e atualização
 
-`.github/workflows/publish.yml` publica a branch `main` via GitHub Actions. A branch `data` guarda os snapshots e revisões mais recentes, sem alterar o histórico do código. Toda publicação restaura dessa branch apenas `manifest.json`, `revisions.json` e `series/`; pacotes estáticos versionados em `public/data`, como o IDMI congelado, continuam vindo da `main`.
+`.github/workflows/publish.yml` publica a branch `main` via GitHub Actions. A branch `data` guarda os snapshots e revisões mais recentes, sem alterar o histórico do código. Toda publicação restaura dessa branch apenas `manifest.json`, `revisions.json` e `series/`, depois reconcilia o manifesto com o catálogo atual sem chamar as fontes; pacotes estáticos versionados em `public/data`, como o IDMI congelado, continuam vindo da `main`.
 
 O agendamento é `17 * * * *` (UTC). Atualizações de fontes ocorrem no agendamento ou na execução manual com `refresh=true`; um push de código republica os dados preservados, sem uma rodada extra de chamadas. O GitHub pode atrasar ou suspender agendamentos por inatividade. A interface avisa quando o manifesto tem mais de três horas; a data de cada série continua visível. [Limitações oficiais do agendamento](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 

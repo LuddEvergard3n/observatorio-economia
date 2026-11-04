@@ -13,6 +13,7 @@ var asOf = DateOnly.Parse(Argument("--as-of", localDate.ToString("yyyy-MM-dd", C
 if (asOf.Year > catalog.EndYear) asOf = new DateOnly(catalog.EndYear, 12, 31);
 var localTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, "America/Sao_Paulo");
 var full = args.Contains("--full") || (localDate.DayOfWeek == DayOfWeek.Sunday && localTime.Hour == 3);
+var manifestOnly = args.Contains("--manifest-only");
 var filter = Argument("--only", "").Split(',', StringSplitOptions.RemoveEmptyEntries).ToHashSet();
 Directory.CreateDirectory(output);
 Directory.CreateDirectory(Path.Combine(output, "series"));
@@ -27,13 +28,19 @@ foreach (var definition in catalog.Indicators)
 {
     var file = Path.Combine(output, "series", definition.Id + ".json");
     Dataset? dataset = File.Exists(file) ? JsonSerializer.Deserialize<Dataset>(await File.ReadAllTextAsync(file), options) : null;
+    var oldEntry = previousManifest?.Indicators.FirstOrDefault(e => e.Definition.Id == definition.Id);
     var lastSuccess = dataset?.RetrievedAt;
     var at = DateTimeOffset.UtcNow.ToString("O");
     var status = "pending";
     string? error = null;
-    if (filter.Count > 0 && !filter.Contains(definition.Id))
+    if (manifestOnly)
     {
-        var oldEntry = previousManifest?.Indicators.FirstOrDefault(e => e.Definition.Id == definition.Id);
+        at = oldEntry?.LastAttempt ?? at;
+        status = definition.Provider == "pending" ? "pending" : dataset?.Series.Any(s => s.Observations.Any(p => p.Value.HasValue)) == true ? "ready" : "empty";
+        if (oldEntry?.Status == "error" && oldEntry.Definition.Provider == definition.Provider) { status = "error"; error = oldEntry.Error; }
+    }
+    else if (filter.Count > 0 && !filter.Contains(definition.Id))
+    {
         if (oldEntry is not null) { entries.Add(oldEntry); continue; }
     }
     else if (definition.Provider != "pending")
