@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { eventsForIndicator } from '../../src/content/events'
+import { stateFiscalSnapshot } from '../../src/content/stateFiscal'
 import { completedIdmiDimensions, idmiDimensions, isIdmiProfilePackage, type IdmiProfile } from '../../src/lib/idmi'
 import { annualPurchasingPower, chartPoints, compound, csvCell, linearAnnualEstimate, number } from '../../src/lib/format'
 
@@ -45,6 +46,13 @@ describe('statistical presentation and exports', () => {
     expect(estimate.progress).toBe(0.5)
     expect(estimate.accumulated).toBe(183)
     expect(estimate.perDay).toBe(1)
+  })
+  it('keeps the 2023 state fiscal snapshot complete and internally consistent', () => {
+    expect(stateFiscalSnapshot).toHaveLength(27)
+    expect(new Set(stateFiscalSnapshot.map(row => row.uf)).size).toBe(27)
+    expect(stateFiscalSnapshot.find(row => row.uf === 'SP')).toMatchObject({ revenueMillions:904983.7, transferMillions:19530.5 })
+    expect(stateFiscalSnapshot.reduce((total, row) => total + row.revenueMillions, 0)).toBeCloseTo(2318120.1, 1)
+    expect(stateFiscalSnapshot.reduce((total, row) => total + row.transferMillions, 0)).toBeCloseTo(260025.8, 1)
   })
   it('inserts null chart coordinates between available years', () => {
     const points = chartPoints([{ period: '2020', value: 5, status: 'published' }, { period: '2022', value: 7, status: 'published' }], 'annual', 2020, 2022)

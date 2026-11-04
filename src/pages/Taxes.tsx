@@ -8,6 +8,7 @@ import { useTranslation } from '@/lib/i18n'
 import type { Dataset, Indicator, Manifest } from '@/lib/types'
 
 const Chart = lazy(() => import('@/components/Chart'))
+const StateFiscalChart = lazy(() => import('@/components/StateFiscalChart'))
 const brazil = [{ id: 'BRA', name: 'Brasil', region: 'Latin America', color: '#08745a' }]
 const taxBurden2025 = 4_127_232_000_000
 const definition: Indicator = { id: 'purchasing-power-year', name: 'Variação anual do poder de compra', code: 'derived:ipca-monthly', category: 'prices', unit: '% no ano', frequency: 'annual', provider: 'derived', source: 'IBGE · IPCA', sourceUrl: 'https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-ipca.html', description: 'Quanto o mesmo valor nominal ganhou ou perdeu em capacidade de comprar a cesta do IPCA em cada ano.', notes: 'Cálculo: 1 dividido pelo fator acumulado do IPCA no ano, menos 1. Exige os 12 meses; não soma taxas.', statusDefault: 'derived' }
@@ -26,6 +27,11 @@ export function TaxesPage({ manifest, dark }: { manifest: Manifest; dark: boolea
   return <>
     <div className="page-intro"><div><div className="eyebrow">{t('taxes.eyebrow')}</div><h1>{t('taxes.title')}</h1><p>{t('taxes.description')}</p></div></div>
     <div className="notice"><Scale size={18}/><p><strong>{t('taxes.scopeTitle')}</strong> {t('taxes.scope')}</p></div>
+    <section className="panel state-fiscal-panel">
+      <div className="panel-heading"><div><div className="eyebrow">{t('taxes.statesEyebrow')}</div><h2>{t('taxes.statesTitle')}</h2><p>{t('taxes.statesDescription')}</p></div><Landmark size={21}/></div>
+      <Suspense fallback={<div className="chart-loading">{t('series.preparing')}</div>}><StateFiscalChart dark={dark}/></Suspense>
+      <div className="state-fiscal-sources"><p>{t('taxes.statesCaution')}</p><div><a href="https://www.gov.br/receitafederal/dados/arrecadacao-estado.csv/view" target="_blank" rel="noreferrer">{t('taxes.revenueSource')} <ExternalLink size={11}/></a><a href="https://www.tesourotransparente.gov.br/ckan/dataset/transferencias-da-uniao-total-por-estado" target="_blank" rel="noreferrer">{t('taxes.transferSource')} <ExternalLink size={11}/></a></div></div>
+    </section>
     <section className="tax-meter" aria-labelledby="tax-meter-title">
       <div className="tax-meter-top"><div><div className="eyebrow">{t('taxes.meterEyebrow')}</div><h2 id="tax-meter-title">{t('taxes.meterTitle', { year: now.getFullYear() })}</h2></div><Badge variant="outline">{t('taxes.estimate')}</Badge></div>
       <strong className="tax-meter-value" aria-label={money(meter.accumulated)}>{money(meter.accumulated)}</strong>

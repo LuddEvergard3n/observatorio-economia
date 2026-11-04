@@ -79,6 +79,8 @@ O peso agregado usa carga tributária como proporção do PIB, com a edição me
 
 O arrecadômetro usa a estimativa preliminar da STN de R$ 4,127 trilhões para a carga tributária bruta de 2025. Esse total é distribuído linearmente pelo calendário do ano corrente no navegador. O resultado é uma referência visual auditável, não telemetria oficial em tempo real nem projeção de crescimento.
 
+O comparador estadual congela 2023, último ano completo comum às bases selecionadas. A arrecadação federal por UF vem da Receita Federal; as transferências obrigatórias e discricionárias, em regime de caixa, vêm do Tesouro Nacional e cobrem governos estaduais. A proporção entre ambas é uma leitura descritiva, não um saldo fiscal: municípios, benefícios, folha federal, obras e outros gastos diretos ficam fora.
+
 Leia [fontes e cobertura](docs/DATA-SOURCES.md), [mudanças metodológicas e contexto político](docs/METHODOLOGY-CHANGES.md), [metodologia IDMI](docs/IDMI.md) e [operação](docs/OPERATIONS.md).
 
 O catálogo inclui integrações pendentes, identificadas no painel. Isso não equivale a cobertura completa de todas as métricas desde 1988. Em particular: DPF/Tesouro, saldo Novo Caged, resultado primário internacional, patrimônio não humano e alguns componentes de infraestrutura precisam de integração ou validação adicional. Dados Fraser não são redistribuídos nesta versão.

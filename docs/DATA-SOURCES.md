@@ -50,6 +50,10 @@ O gráfico anual de poder de compra reutiliza a série mensal do IPCA (SGS 433, 
 
 O arrecadômetro toma como base fixa os R$ 4.127.232 milhões da carga tributária bruta do governo geral em 2025, publicados como dado preliminar pela STN no Boletim CTB 2025. O navegador multiplica esse total pela fração transcorrida do calendário atual e mostra os ritmos equivalentes por dia e segundo. Não há consulta ao Impostômetro, extrapolação de sazonalidade ou alegação de arrecadação oficial instantânea.
 
+O comparador por UF usa 2023, último exercício completo comum na edição consultada das duas bases. A [Receita Federal](https://www.gov.br/receitafederal/dados/arrecadacao-estado.csv/view) fornece valores mensais por tributo e UF; o painel soma os 12 meses e todas as rubricas publicadas. O [Tesouro Nacional](https://www.tesourotransparente.gov.br/ckan/dataset/transferencias-da-uniao-total-por-estado) fornece, em R$ milhões correntes e regime de caixa, transferências obrigatórias e discricionárias; o painel soma as duas categorias nos 12 meses. O retrato congelado, consultado em 03/11/2026, contém as 27 UFs, R$ 2.318.120,1 milhões arrecadados e R$ 260.025,8 milhões transferidos.
+
+A razão “transferido ÷ arrecadado” não é balanço de quanto cada população pagou e recebeu. A arrecadação é atribuída ao local do recolhimento e pode se concentrar na sede da empresa; a série do Tesouro cobre governos estaduais, não municípios, benefícios sociais, salários federais, compras, obras ou demais gastos diretos da União. Valores acima de 100% indicam apenas que as transferências deste recorte superaram a arrecadação federal registrada na UF naquele ano.
+
 ## Pendências explícitas
 
 - `roads-paved`: código histórico WDI não disponível na API consultada; requer edição arquivada e verificação dos universos nacionais.
